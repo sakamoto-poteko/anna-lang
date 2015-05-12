@@ -1,0 +1,30 @@
+import stdlib   -_- This is optional. stdlib is always imported >_<
+
+def entry()
+{
+    @nna1
+}
+
+def @nna1()
+{
+    var 50USD   = 6.33          -_- This is a special case for ``var ana'' >_<
+    var 500USD  = 4             -_- This is a special case for ``var anna'' >_<
+    var annna   = 59.663        -_- simicolon is not necessary >_<
+    var a`4     = true;
+    var annnnna = "ann aaannnnaa nannaanaa!";
+    var bnnnnnnb = "dummy";
+    -_- Syntax Error: expected variable, but got `bnnnnnnb' >_<
+    
+    -_-
+    This is a multiline comment.
+    Second line
+    Thrid line
+    >_<
+    
+    if (anna == a`2)    -_- a`n is just a syntax sugar >_<
+        printf "Num int %d\n", a`2;
+    else
+        printf "Won't print\n";
+
+    return anna;
+}

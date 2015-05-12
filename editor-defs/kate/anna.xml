@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<language name="Anna"
+    version="1.00"
+    kateversion="3.3"
+    section="Sources"
+    extensions="*.anna"
+    casesensitive="1"
+    author="Afa Cheng (afa@afa.moe)"
+    license="MIT">
+        <highlighting>
+            <list name="keywords">
+                <item> if </item>
+                <item> else </item>
+                <item> while </item>
+                <item> def </item>
+                <item> true </item>
+                <item> false </item>
+                <item> return </item>
+                <item> import </item>
+                <item> entry </item>
+            </list>
+            <list name="types">
+                <item> var </item>
+            </list>
+            <contexts>
+                <context attribute="Normal Text" lineEndContext="#stay" name="Default">
+                    <keyword attribute="Keyword" context="#stay" String="keywords"/>
+                    <keyword attribute="Data Type" context="#stay" String="types" />
+                    <Float attribute="Float" context="#stay"/>
+                    <StringDetect String="50USD" attribute="Variable" context="#stay" /> 
+                    <StringDetect String="500USD" attribute="Variable" context="#stay" /> 
+                    <Int attribute="Decimal" context="#stay"/>
+                    <DetectChar attribute="String" context="String" char="&quot;"/>
+                    <RegExpr String="an+a" attribute="Variable" context="#stay" />
+                    <RegExpr String="a`[0-9]+" attribute="Variable" context="#stay" />
+                    <RegExpr String="@[A-Za-z][A-Za-z0-9]*" attribute="FunctionName" context="#stay" />
+                    <StringDetect attribute="Comment" context="Multiline Comment" String="-_-" beginRegion="Comment"/>
+                    <DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="Brace" />
+                    <DetectChar attribute="Symbol" context="#stay" char="}" endRegion="Brace" />
+                    <AnyChar attribute="Symbol" context="#stay" String=":!%&amp;()+,-/.*&lt;=&gt;|"/>
+                </context>
+                <context attribute="String" lineEndContext="#pop" name="String">
+                    <HlCStringChar attribute="String Char" context="#stay"/>
+                    <DetectChar attribute="String" context="#pop" char="&quot;"/>
+                </context>
+                <context name="Multiline Comment" attribute="Comment" lineEndContext="#stay">
+                    <StringDetect attribute="Comment" context="#pop" String="&gt;_&lt;" endRegion="Comment"/>
+                </context>
+            </contexts>
+            <itemDatas>
+                <itemData name="Variable"    defStyleNum="dsKeyword" color="#0095ff" />
+                <itemData name="FunctionName"    defStyleNum="dsKeyword" color="#ff9900" />
+                <itemData name="Normal Text" defStyleNum="dsNormal" />
+                <itemData name="Keyword"     defStyleNum="dsKeyword" />
+                <itemData name="Data Type"   defStyleNum="dsDataType"/>
+                <itemData name="Decimal"     defStyleNum="dsDecVal" />
+                <itemData name="Float"       defStyleNum="dsFloat" />
+                <itemData name="String"      defStyleNum="dsString" />
+                <itemData name="String Char" defStyleNum="dsKeyword" />
+                <itemData name="Comment"     defStyleNum="dsComment" spellChecking="true" />
+                <itemData name="Symbol"      defStyleNum="dsNormal"/>
+            </itemDatas>
+        </highlighting>
+        <general>
+            <comments>
+                <comment name="multiLine" start="-_-" end="&gt;_&lt;" region="Comment" />
+            </comments>
+            <keywords casesensitive="1" />
+        </general>
+    </language>
+    <!-- kate: space-indent on; indent-width 4; replace-tabs on; -->
+    
