@@ -18,7 +18,7 @@
                 <item> false </item>
                 <item> return </item>
                 <item> import </item>
-                <item> entry </item>
+                <item> main </item>
             </list>
             <list name="types">
                 <item> var </item>
@@ -34,7 +34,7 @@
                     <DetectChar attribute="String" context="String" char="&quot;"/>
                     <RegExpr String="an+a" attribute="Variable" context="#stay" />
                     <RegExpr String="a`[0-9]+" attribute="Variable" context="#stay" />
-                    <RegExpr String="@[A-Za-z][A-Za-z0-9]*" attribute="FunctionName" context="#stay" />
+                    <RegExpr String="@[A-Za-z][A-Za-z0-9_]*" attribute="FunctionName" context="#stay" />
                     <StringDetect attribute="Comment" context="Multiline Comment" String="-_-" beginRegion="Comment"/>
                     <DetectChar attribute="Symbol" context="#stay" char="{" beginRegion="Brace" />
                     <DetectChar attribute="Symbol" context="#stay" char="}" endRegion="Brace" />

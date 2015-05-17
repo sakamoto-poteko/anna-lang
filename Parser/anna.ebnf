@@ -1,0 +1,43 @@
+eos = T, {T};
+
+compilation unit = {import directive}, declaration, {declaration};
+import directive = IMPORT, IDENTIFIER, eos;
+
+declaration = variable declaration statement | function declaration;
+function identifier = USER_FUNCTION_IDENTIFIER | IDENTIFIER;
+
+(* Expression *)
+expression = unary expression
+           | assignment
+           | unary expression, binary operator, unary expression;
+unary expression = primary expression;
+primary expression = literal | simple name | parenthesized expression | invocation expression;
+simple name = VARIABLE_IDENTIFIER;
+literal = STRING | REAL | INTEGER | BOOLEAN;
+parenthesized expression = '(', expression, ')';
+binary operator = AND | OR | XOR | GT | LT | ADD | SUB | MUL | DIV | MOD;
+invocation expression = function identifier, ([argument list] | '(', [argument list], ')');
+argument list = expression, [',', expression];
+
+(* Function *)
+function declaration = function header, function body;
+function header = USER_FUNCTION_IDENTIFIER, '(', [formal parameter list], ')';
+formal parameter list = {VARIABLE_IDENTIFIER};
+function body = block;
+block = '{', {statement}, '}';
+
+(* Statement *)
+statement = variable declaration statement | embedded statement;
+embedded statement = block | empty statement | expression statement | iteration statement | selection statement;
+
+variable declaration statement = VAR, VARIABLE_IDENTIFIER, ['=', primary expression], eos;
+empty statement = | eos;
+expression statement = statement expression, eos;
+statement expression = invocation expression | assignment;
+selection expression = if statement;
+if statement = IF, '(', expression, ')', embedded statement, [ELSE, embedded statement];
+iteration statement = while statement;
+while statement = WHILE, '(', expression, ')', embedded statement;
+
+assignment = unary expression, EQ, expression;
+

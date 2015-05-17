@@ -1,11 +1,13 @@
-import stdlib   -_- This is optional. stdlib is always imported >_<
+import stdlib   -_- This is optional. stdlib is always imported >_< -_- Another comment >_<
 
-def entry()
+var a`6 = false;
+
+def main()
 {
     @nna1
 }
 
-def @nna1()
+def @nna1(a`8, a`9, a`10)
 {
     var 50USD   = 6.33          -_- This is a special case for ``var ana'' >_<
     var 500USD  = 4             -_- This is a special case for ``var anna'' >_<
