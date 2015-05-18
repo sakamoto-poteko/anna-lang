@@ -35,7 +35,8 @@ bool lexer_init(char *in, size_t len);
 void lexer_finalize();
 std::string get_lex_source_row(int row);
 std::vector<std::string> &get_lex_source_rows();
-gcToken lex();
+gcnToken lex();
+void log_print_row(int row);
 
 #endif // LEX_HELPER_H
 

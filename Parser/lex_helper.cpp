@@ -71,7 +71,7 @@ bool lexer_init(char* in, size_t len)
     return true;
 }
 
-gcToken lex()
+gcnToken lex()
 {
     int lex_val = annalex();
     switch (lex_val) {
@@ -167,15 +167,10 @@ gcToken lex()
                                                lexerToken.token_leng,
                                                lexerToken.trailing_comments);
         case ERROR:
-            std::fprintf(__log_out, "Error:%d:%d: Unrecognized token ``%s''.\n", lexerToken.token_row + 1,
-                         lexerToken.token_col + 1, lexerToken.text->c_str());
-            std::fprintf(__log_out, "%s\n", std::string(get_lex_source_row(lexerToken.token_row).c_str(), get_lex_source_row(lexerToken.token_row).size() - 1).c_str());
-            for (int i = 0; i < lexerToken.token_col; ++i)
-                std::fprintf(__log_out, " ");
-            for (int i = 0; i < lexerToken.token_leng; ++i)
-                std::fprintf(__log_out, "^");
-
-            std::fprintf(__log_out, "\n");
+            log_print_pos(lexerToken.token_row, lexerToken.token_col);
+            std::fprintf(__log_out, "Unrecognized token ``%s''\n", lexerToken.text->c_str());
+            log_print_row(lexerToken.token_row);
+            log_print_indicators(lexerToken.token_col, lexerToken.token_leng);
             return std::make_shared<AnnaToken>(ERROR,
                                                lexerToken.text,
                                                lexerToken.token_row,
@@ -193,4 +188,9 @@ void lexer_finalize()
 {
     if (use_temp_file_stream)
         fclose(annain);
+}
+
+void log_print_row(int row)
+{
+    std::fprintf(__log_out, get_lex_source_row(row).c_str());
 }

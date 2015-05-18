@@ -24,9 +24,28 @@
 
 #include "parser_global.h"
 
+#include <cstdio>
+
 void set_log_output(FILE *out)
 {
     __log_out = out;
 }
+
+void log_print_indicators(int start, int width)
+{
+    for (int i = 0; i < start; ++i)
+        std::fprintf(__log_out, " ");
+    for (int i = 0; i < width; ++i)
+        std::fprintf(__log_out, "^");
+    std::fprintf(__log_out, "\n");
+}
+
+
+
+void log_print_pos(int row, int col)
+{
+    std::fprintf(__log_out, "Error:%d:%d: ", row + 1, col + 1);
+}
+
 
 FILE *__log_out = stdout;

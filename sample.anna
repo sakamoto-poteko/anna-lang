@@ -1,10 +1,10 @@
-import stdlib   -_- This is optional. stdlib is always imported >_< -_- Another comment >_<
+import stdlib;   -_- This is optional. stdlib is always imported >_< -_- Another comment >_<
 
 var a`6 = false;
 
-def main()
+def @main()
 {
-    @nna1
+    @nna1;
 }
 
 def @nna1(a`8, a`9, a`10)
@@ -14,7 +14,7 @@ def @nna1(a`8, a`9, a`10)
     var annna   = 59.663        -_- simicolon is not necessary >_<
     var a`4     = true;
     var annnnna = "ann aaannnnaa nannaanaa!";
-    var bnnnnnnb = "dummy";
+    -_-var bnnnnnnb = "dummy";>_<
     -_- Syntax Error: expected variable, but got `bnnnnnnb' >_<
     
     -_-

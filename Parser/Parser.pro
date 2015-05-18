@@ -12,14 +12,20 @@ SOURCES += parser.cpp \
     lexertoken.cpp \
     annasyntax.cpp \
     annatoken.cpp \
-    parser_global.cpp
+    parser_global.cpp \
+    annasyntaxvisitor.cpp \
+    annanode.cpp \
+    annasyntax_visitor.cpp
 
 HEADERS += parser.h\
         parser_global.h \
     lex_helper.h \
     lexertoken.h \
     annasyntax.h \
-    annatoken.h
+    annatoken.h \
+    annasyntaxvisitor.h \
+    annanode.h \
+    annanode_forward.h
 
 OTHER_FILES += anna.ebnf
 

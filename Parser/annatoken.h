@@ -27,14 +27,60 @@
 #define ANNATOKEN_H
 
 #include "parser_global.h"
-#include "parser.h"
-#include "annasyntax.h"
+#include "annanode.h"
+#include "annasyntaxvisitor.h"
 
 
-class AnnaToken;
-typedef std::shared_ptr<AnnaToken> gcToken;
+enum Tokens
+{
+    END = 0,
+    DEF = 257,
+    MAIN,
+    IF,
+    ELSE,
+    WHILE,
+    GE,
+    LE,
+    EE,
+    NE,
+    AND,
+    OR,
+    XOR,
+    GT,
+    LT,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    MOD,
+    NOT,
+    BITNOT,
+    ANDAND,
+    OROR,
+    EQ,
+    IMPORT,
+    RETURN,
+    VAR,
+    USER_FUNCTION_IDENTIFIER,
+    IDENTIFIER,
+    VARIABLE_IDENTIFIER,
+    STRING,
+    REAL,
+    INTEGER,
+    BOOLEAN,
+    T,
+    OPEN_PAREN,
+    CLOSE_PAREN,
+    OPEN_BRACE,
+    CLOSE_BRACE,
+    OPEN_BRACKET,
+    CLOSE_BRACKET,
+    COMMA,
 
-class AnnaToken : public AnnaSyntaxNode
+    ERROR = -1
+};
+
+class AnnaToken : public AnnaNode
 {
 public:
     AnnaToken(Tokens token, gcString text, int row, int col,
@@ -42,6 +88,8 @@ public:
         : _token(token), _text(text), _row(row),
           _col(col), _width(width), _trailing_comments(trailingComments)
     {}
+
+    virtual void Accept(AnnaSyntaxVisitor &visitor);
 
     Tokens token() { return _token; }
     gcString text() { return _text; }
@@ -68,19 +116,49 @@ public:
         : AnnaToken(token, text, row, col, width, trailingComments), _identifier(identifier)
     {}
 
+    virtual void Accept(AnnaSyntaxVisitor &visitor);
+
+
     gcString identifier() { return _identifier; }
 
 protected:
     gcString _identifier;
 };
 
-class RealToken : public AnnaToken
+class LiteralToken : public AnnaToken
+{
+public:
+    enum LiteralType {
+        Real,
+        Integer,
+        Boolean,
+        String
+    };
+
+    virtual void Accept(AnnaSyntaxVisitor &visitor);
+
+    LiteralType literalType();
+
+protected:
+    LiteralToken(Tokens token, gcString text, int row, int col, int width,
+                 std::vector<std::string> trailingComments = std::vector<std::string>())
+        : AnnaToken(token, text, row, col, width, trailingComments)
+    {}
+
+    LiteralType _literalType;
+};
+
+class RealToken : public LiteralToken
 {
 public:
     RealToken(Tokens token, gcString text, int row, int col, int width, double real,
                     std::vector<std::string> trailingComments = std::vector<std::string>())
-        : AnnaToken(token, text, row, col, width, trailingComments), _real(real)
-    {}
+        : LiteralToken(token, text, row, col, width, trailingComments), _real(real)
+    {
+         _literalType = Real;
+    }
+
+    virtual void Accept(AnnaSyntaxVisitor &visitor);
 
     double real() { return _real; }
 
@@ -88,13 +166,17 @@ protected:
     double _real;
 };
 
-class IntegerToken : public AnnaToken
+class IntegerToken : public LiteralToken
 {
 public:
     IntegerToken(Tokens token, gcString text, int row, int col, int width, int integer,
                  std::vector<std::string> trailingComments = std::vector<std::string>())
-        : AnnaToken(token, text, row, col, width, trailingComments), _integer(integer)
-    {}
+        : LiteralToken(token, text, row, col, width, trailingComments), _integer(integer)
+    {
+        _literalType = Integer;
+    }
+
+    virtual void Accept(AnnaSyntaxVisitor &visitor);
 
     int integer() { return _integer; }
 
@@ -102,13 +184,17 @@ protected:
     int _integer;
 };
 
-class BooleanToken : public AnnaToken
+class BooleanToken : public LiteralToken
 {
 public:
     BooleanToken(Tokens token, gcString text, int row, int col, int width, int boolean,
                  std::vector<std::string> trailingComments = std::vector<std::string>())
-        : AnnaToken(token, text, row, col, width, trailingComments), _boolean(boolean)
-    {}
+        : LiteralToken(token, text, row, col, width, trailingComments), _boolean(boolean)
+    {
+        _literalType = Boolean;
+    }
+
+    virtual void Accept(AnnaSyntaxVisitor &visitor);
 
     int boolean() { return _boolean; }
 
@@ -116,13 +202,17 @@ protected:
     int _boolean;
 };
 
-class StringToken : public AnnaToken
+class StringToken : public LiteralToken
 {
 public:
     StringToken(Tokens token, gcString text, int row, int col, int width, gcString identifier,
                     std::vector<std::string> trailingComments = std::vector<std::string>())
-        : AnnaToken(token, text, row, col, width, trailingComments), _string(identifier)
-    {}
+        : LiteralToken(token, text, row, col, width, trailingComments), _string(identifier)
+    {
+         _literalType = String;
+    }
+
+    virtual void Accept(AnnaSyntaxVisitor &visitor);
 
     gcString string() { return _string; }
 

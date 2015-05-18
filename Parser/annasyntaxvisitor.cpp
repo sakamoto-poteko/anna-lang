@@ -23,31 +23,16 @@
  ***************************************************************************/
 
 
-#ifndef PARSER_GLOBAL_H
-#define PARSER_GLOBAL_H
+#include "annasyntaxvisitor.h"
 
+AnnaSyntaxVisitor::AnnaSyntaxVisitor()
+{
 
-#ifdef _WIN32
-#if defined(PARSER_LIBRARY)
-#define PARSERSHARED_EXPORT __declspec(dllexport)
-#else
-#define PARSERSHARED_EXPORT __declspec(dllimport)
-#endif
-#else
-#define PARSERSHARED_EXPORT
-#endif
+}
 
-#include <vector>
-#include <string>
-#include <memory>
-#include <cstdio>
+void AnnaSyntaxVisitor::Visit(AnnaNode &node)
+{
+    // Implement own Visit
+    throw;
+}
 
-typedef std::shared_ptr<std::string> gcString;
-
-void set_log_output(FILE *out);
-extern FILE *__log_out;
-void log_print_indicators(int start, int width);
-void log_print_pos(int row, int col);
-
-
-#endif // PARSER_GLOBAL_H

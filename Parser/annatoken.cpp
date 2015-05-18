@@ -25,3 +25,38 @@
 
 #include "annatoken.h"
 
+void AnnaToken::Accept(AnnaSyntaxVisitor &visitor)
+{
+    visitor.Visit(*this);
+}
+
+void IdentifierToken::Accept(AnnaSyntaxVisitor &visitor)
+{
+    visitor.Visit(*this);
+}
+
+void RealToken::Accept(AnnaSyntaxVisitor &visitor)
+{
+    visitor.Visit(*this);
+}
+
+void IntegerToken::Accept(AnnaSyntaxVisitor &visitor)
+{
+    visitor.Visit(*this);
+}
+
+void BooleanToken::Accept(AnnaSyntaxVisitor &visitor)
+{
+    visitor.Visit(*this);
+}
+
+void StringToken::Accept(AnnaSyntaxVisitor &visitor)
+{
+    visitor.Visit(*this);
+}
+
+void LiteralToken::Accept(AnnaSyntaxVisitor &visitor)
+{
+    visitor.Visit(*this);
+}
+

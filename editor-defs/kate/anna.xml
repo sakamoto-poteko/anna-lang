@@ -18,7 +18,7 @@
                 <item> false </item>
                 <item> return </item>
                 <item> import </item>
-                <item> main </item>
+                <item> @main </item>
             </list>
             <list name="types">
                 <item> var </item>

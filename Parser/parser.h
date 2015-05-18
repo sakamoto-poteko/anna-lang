@@ -27,67 +27,89 @@
 #define PARSER_H
 
 #include "parser_global.h"
+#include "annatoken.h"
+#include "annasyntax.h"
 
-enum Tokens
-{
-    END = 0,
-    DEF = 257,
-    MAIN,
-    IF,
-    ELSE,
-    WHILE,
-    GE,
-    LE,
-    EE,
-    NE,
-    AND,
-    OR,
-    XOR,
-    GT,
-    LT,
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    MOD,
-    NOT,
-    BITNOT,
-    ANDAND,
-    OROR,
-    EQ,
-    IMPORT,
-    RETURN,
-    VAR,
-    USER_FUNCTION_IDENTIFIER,
-    IDENTIFIER,
-    VARIABLE_IDENTIFIER,
-    STRING,
-    REAL,
-    INTEGER,
-    BOOLEAN,
-    T,
-    OPEN_PAREN,
-    CLOSE_PAREN,
-    OPEN_BRACE,
-    CLOSE_BRACE,
-    OPEN_BRACKET,
-    CLOSE_BRACKET,
-    COMMA,
-
-    ERROR = -1
-};
+#include <stack>
 
 class AnnaParser
 {
 public:
-    AnnaParser();
+    AnnaParser(FILE *in);
+    AnnaParser(char *text, size_t len);
+    virtual ~AnnaParser();
 
     // FIXME: Change reutrn type
-    //SyntaxTree ParseText(gcString str);
+    static void ParseText(gcString text);
+
+    gcnCompilationUnit parse();
 
 protected:
-    //CompilationUnitSyntax ParseCompilationUnit();
+    bool lexall();
 
+    gcnEOS parseEOS();
+    gcnCompilationUnit parseCompilationUnit();
+    gcnImportDirective parseImportDirective();
+    gcnFunctionIdentifier parseFunctionIdentifier();
+    gcnExpression parseExpression();
+    gcnBinaryOperationExpression parseBinaryOperationExpression();
+    gcnUnaryExpression parseUnaryExpression();
+    gcnPrimaryExpression parsePrimaryExpression();
+    gcnSimpleName parseSimpleName();
+    gcnLiteral parseLiteral();
+    gcnParenthesizedExpression parseParenthesizedExpression();
+    gcnBinaryOperator parseBinaryOperator();
+    gcnInvocationExpression parseInvocationExpression();
+    gcnArgumentList parseArgumentList();
+    gcnFunctionDefinition parseFunctionDefinition();
+    gcnFunctionHeader parseFunctionHeader();
+    gcnFormalParameterList parseFormalParameterList();
+    gcnFormalParameter parseFormalParameter();
+    gcnFunctionBody parseFunctionBody();
+    gcnBlock parseBlock();
+    gcnStatement parseStatement();
+    gcnEmbeddedStatement parseEmbeddedStatement();
+    gcnVariableDeclarationStatement parseVariableDeclarationStatement();
+    gcnEmptyStatement parseEmptyStatement();
+    gcnExpressionStatement parseExpressionStatement();
+    gcnStatementExpression parseStatementExpression();
+    gcnSelectionStatement parseSelectionStatement();
+    gcnIfStatement parseIfStatement();
+    gcnIterationStatement parseIterationStatement();
+    gcnWhileStatement parseWhileStatement();
+    gcnAssignment parseAssignment();
+
+
+    std::vector<gcnToken> tokens;
+    unsigned int currentTokenIdx = 0;
+    gcnToken currentToken;
+
+    gcnToken eatToken(bool requireT = false);
+
+    // Always use this signature. When there's a kind mismatch,
+    // no token will be consumed.
+    gcnToken eatToken(Tokens kind, const char *expected = 0);
+
+    gcnToken peekToken(int ahead);
+    void revertToken(unsigned int index);
+
+
+    std::stack<unsigned int> tokenIdxStack;
+    void pushTokenStatus()
+    {
+        tokenIdxStack.push(currentTokenIdx);
+    }
+
+    void popTokenStatus()
+    {
+        tokenIdxStack.pop();
+    }
+
+    void revertTokenStatus()
+    {
+        revertToken(tokenIdxStack.top());
+        popTokenStatus();
+    }
 };
 
 
