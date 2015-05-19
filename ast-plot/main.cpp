@@ -23,16 +23,22 @@
  ***************************************************************************/
 
 
-#include "annasyntaxvisitor.h"
+#include <iostream>
+#include <cstdio>
 
-AnnaSyntaxVisitor::AnnaSyntaxVisitor()
+#include <parser.h>
+#include "astplottersyntaxvisitor.h"
+
+
+int main()
 {
+    FILE *f = std::fopen("/home/afa/sample.anna", "r");
 
+    AnnaParser parser(f, "sample.anna");
+    gcnCompilationUnit root = parser.parse();
+    ASTPlotterSyntaxVisitor visitor;
+    visitor.Visit(*root);
+    visitor.generateGraph("graph.dot");
+
+    return 0;
 }
-
-void AnnaSyntaxVisitor::Visit(AnnaNode &node)
-{
-    (void)node;
-    throw; // Implement own Visit
-}
-

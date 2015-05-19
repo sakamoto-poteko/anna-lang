@@ -74,7 +74,7 @@ public:
         }
     }
 
-protected:
+//protected:
     struct Couple {
         T node;
         gcnToken COMMA;
@@ -92,7 +92,8 @@ class AnnaEOSSyntax : public AnnaSyntax
 public:
     AnnaEOSSyntax(const std::vector<gcnToken> &Ts) : T(Ts) {}
     void Accept(AnnaSyntaxVisitor &visitor);
-protected:
+
+//protected:
     std::vector<gcnToken> T;
 };
 
@@ -106,7 +107,7 @@ public:
     {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     std::vector<gcnImportDirective> importDirectives;
     std::vector<gcnVariableDeclarationStatement> variableDeclarationStatements;
     std::vector<gcnFunctionDefinition> functionDefinitions;
@@ -120,7 +121,7 @@ public:
     {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnToken IMPORT;
     gcnIdentifierToken IDENTIFIER;
     gcnEOS eos;
@@ -136,7 +137,7 @@ public:
         functionHeader(header), functionBody(body) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnFunctionHeader functionHeader;
     gcnFunctionBody functionBody;
 };
@@ -158,7 +159,7 @@ public:
         CLOSE_PAREN(closePar), hasParameter(false) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnToken DEF;
     gcnIdentifierToken USER_FUNCTION_IDENTIFIER;
     gcnToken OPEN_PAREN;
@@ -175,7 +176,7 @@ public:
     AnnaFormalParameterSyntax(gcnIdentifierToken id) : VARIABLE_IDENTIFIER(id) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnIdentifierToken VARIABLE_IDENTIFIER;
 };
 
@@ -186,7 +187,7 @@ public:
         formalParameterList(list) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     AnnaSeperatedList<gcnFormalParameter> formalParameterList;
 };
 
@@ -196,7 +197,7 @@ public:
     AnnaFunctionBodySyntax(gcnBlock bl) : block(bl) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnBlock block;
 };
 
@@ -206,7 +207,7 @@ public:
     AnnaFunctionIdentifierSyntax(gcnIdentifierToken id) : identifier(id) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnIdentifierToken identifier;
 };
 
@@ -229,7 +230,7 @@ public:
         left(l), op(o), right(r) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnUnaryExpression left;
     gcnBinaryOperator op;
     gcnExpression right;
@@ -255,7 +256,7 @@ public:
     AnnaSimpleNameSyntax(gcnToken tok) : VARIABLE_IDENTIFIER(tok) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnToken VARIABLE_IDENTIFIER;
 };
 
@@ -265,7 +266,7 @@ public:
     AnnaLiteralSyntax(gcnLiteralToken tok) : literal(tok) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     // STRING | REAL | INTEGER | BOOLEAN
     gcnLiteralToken literal;
 };
@@ -277,7 +278,7 @@ public:
         OPEN_PAREN(lpa), expression(exp), CLOSE_PAREN(rpa) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnToken OPEN_PAREN;
     gcnExpression expression;
     gcnToken CLOSE_PAREN;
@@ -289,7 +290,7 @@ public:
     AnnaBinaryOperatorSyntax(gcnToken op) : binOp(op) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnToken binOp;
 };
 
@@ -300,7 +301,7 @@ public:
         argumentList(list) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     AnnaSeperatedList<gcnExpression> argumentList;
 };
 
@@ -327,7 +328,8 @@ public:
         EQ_opt(eq), primaryExpression_opt(pe), hasAssignment(true) {}
 
     void Accept(AnnaSyntaxVisitor &visitor);
-protected:
+
+//protected:
     gcnToken VAR;
     gcnIdentifierToken VARIABLE_IDENTIFIER;
     gcnEOS EOS;
@@ -353,7 +355,7 @@ public:
         RETURN(ret), eos(e), hasExpr(false) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnToken RETURN;
     gcnExpression expression;
     gcnEOS eos;
@@ -368,7 +370,7 @@ public:
         OPEN_BRACE(openBra), statements(stmts), CLOSE_BRACE(closeBra) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnToken OPEN_BRACE;
     std::vector<gcnStatement> statements;
     gcnToken CLOSE_BRACE;
@@ -381,7 +383,7 @@ public:
     AnnaEmptyStatementSyntax(gcnEOS eos) : eos_opt(eos), has_eos(true) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnEOS eos_opt;
     bool has_eos;
 };
@@ -408,7 +410,7 @@ public:
         hasElse(true) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnToken IF;
     gcnToken OPEN_PAREN;
     gcnExpression condition;
@@ -427,7 +429,7 @@ public:
         statementExpression(expr), eos(e) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnStatementExpression statementExpression;
     gcnEOS eos;
 };
@@ -448,7 +450,7 @@ public:
         while_body(body) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnToken WHILE;
     gcnToken OPEN_PAREN;
     gcnExpression condition;
@@ -484,7 +486,7 @@ public:
         functionIdentifier(id), hasOptionalPar(false), hasArgs(false) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnFunctionIdentifier functionIdentifier;
 
     gcnToken OPEN_PAREN_opt;
@@ -503,7 +505,7 @@ public:
         left(l), EQ(eq), right(r) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
-protected:
+//protected:
     gcnSimpleName left;
     gcnToken EQ;
     gcnExpression right;

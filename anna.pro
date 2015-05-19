@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     Parser \
-    parser-test
+    parser-test \
+    ast-plot

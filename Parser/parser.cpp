@@ -535,6 +535,7 @@ gcnBlock AnnaParser::parseBlock()
     } while (statement);
 
     closeBra = eatToken(CLOSE_BRACE, "`}'");
+    if (!closeBra) goto not_block;
 
     // This will allow empty block
     if (statements.empty() && !closeBra) {
@@ -603,7 +604,10 @@ gcnVariableDeclarationStatement AnnaParser::parseVariableDeclarationStatement()
     gcnEOS eos;
 
     var = eatToken(VAR, "`var");
+    if (!var) goto not_var_declaration;
+
     varid = std::static_pointer_cast<IdentifierToken>(eatToken(VARIABLE_IDENTIFIER));
+    if (!varid) goto not_var_declaration;
 
     if (peekToken(0)->token() == EQ) {
         hasAssign = true;
@@ -884,9 +888,13 @@ gcnToken AnnaParser::eatToken(Tokens kind, const char *expected, bool keepNewlin
     if (tok->token() != kind) {
         log_print_pos(row, col, _filename);
         if (expected) {
-            std::fprintf(__log_out, "Invalid token `%s', expect %s\n", tok->text()->c_str(), expected);
+            std::fprintf(__log_out, "Invalid token `");
+            std::fputs(tok->text()->c_str(), __log_out);
+            std::fprintf(__log_out, "', expected %s\n", expected);
         } else {
-            std::fprintf(__log_out, "Invalid token `%s'\n", tok->text()->c_str());
+            std::fprintf(__log_out, "Invalid token `");
+            std::fputs(tok->text()->c_str(), __log_out);
+            std::fprintf(__log_out, "'\n");
         }
         log_print_row(row);
         log_print_indicators(col, width);
