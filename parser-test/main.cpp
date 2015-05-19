@@ -31,7 +31,7 @@ int main()
 {
     FILE *f = fopen("/home/afa/sample.anna", "r");
 
-    AnnaParser parser(f);
+    AnnaParser parser(f, "sample.anna");
     parser.parse();
 
     return 0;

@@ -344,6 +344,23 @@ protected:
     AnnaEmbeddedStatementSyntax() {}
 };
 
+class AnnaReturnStatementSyntax : public AnnaEmbeddedStatementSyntax
+{
+public:
+    AnnaReturnStatementSyntax(gcnToken ret, gcnExpression expr, gcnEOS e) :
+        RETURN(ret), expression(expr), eos(e), hasExpr(true) {}
+    AnnaReturnStatementSyntax(gcnToken ret, gcnEOS e) :
+        RETURN(ret), eos(e), hasExpr(false) {}
+    void Accept(AnnaSyntaxVisitor &visitor);
+
+protected:
+    gcnToken RETURN;
+    gcnExpression expression;
+    gcnEOS eos;
+    bool hasExpr;
+};
+
+
 class AnnaBlockSyntax : public AnnaEmbeddedStatementSyntax
 {
 public:

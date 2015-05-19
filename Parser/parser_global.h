@@ -33,8 +33,43 @@
 #else
 #define PARSERSHARED_EXPORT __declspec(dllimport)
 #endif
+
+#define ANSI_COLOR_RED
+#define ANSI_COLOR_GREEN
+#define ANSI_COLOR_YELLOW
+#define ANSI_COLOR_BLUE
+#define ANSI_COLOR_MAGENTA
+#define ANSI_COLOR_CYAN
+#define ANSI_COLOR_RESET
+#define ANSI_COLOR_BOLDBLACK
+#define ANSI_COLOR_BOLDRED
+#define ANSI_COLOR_BOLDGREEN
+#define ANSI_COLOR_BOLDYELLOW
+#define ANSI_COLOR_BOLDBLUE
+#define ANSI_COLOR_BOLDMAGENTA
+#define ANSI_COLOR_BOLDCYAN
+#define ANSI_COLOR_BOLDWHITE
+
+
 #else
 #define PARSERSHARED_EXPORT
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+#define ANSI_COLOR_BOLDBLACK   "\033[1m\033[30m"
+#define ANSI_COLOR_BOLDRED     "\033[1m\033[31m"
+#define ANSI_COLOR_BOLDGREEN   "\033[1m\033[32m"
+#define ANSI_COLOR_BOLDYELLOW  "\033[1m\033[33m"
+#define ANSI_COLOR_BOLDBLUE    "\033[1m\033[34m"
+#define ANSI_COLOR_BOLDMAGENTA "\033[1m\033[35m"
+#define ANSI_COLOR_BOLDCYAN    "\033[1m\033[36m"
+#define ANSI_COLOR_BOLDWHITE   "\033[1m\033[37m"
+
 #endif
 
 #include <vector>
@@ -42,12 +77,13 @@
 #include <memory>
 #include <cstdio>
 
+
 typedef std::shared_ptr<std::string> gcString;
 
 void set_log_output(FILE *out);
 extern FILE *__log_out;
 void log_print_indicators(int start, int width);
-void log_print_pos(int row, int col);
+void log_print_pos(int row, int col, const std::string &filename);
 
 
 #endif // PARSER_GLOBAL_H

@@ -65,6 +65,7 @@ public:
     virtual void Visit(AnnaWhileStatementSyntax &node) = 0;
     virtual void Visit(AnnaAssignmentSyntax &node) = 0;
     virtual void Visit(AnnaFormalParameterSyntax &node) = 0;
+    virtual void Visit(AnnaReturnStatementSyntax &node) = 0;
 
     // Tokens
     virtual void Visit(AnnaToken &node) = 0;

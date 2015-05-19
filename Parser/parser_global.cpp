@@ -33,18 +33,20 @@ void set_log_output(FILE *out)
 
 void log_print_indicators(int start, int width)
 {
+    std::fprintf(__log_out, ANSI_COLOR_BOLDGREEN);
     for (int i = 0; i < start; ++i)
         std::fprintf(__log_out, " ");
     for (int i = 0; i < width; ++i)
         std::fprintf(__log_out, "^");
-    std::fprintf(__log_out, "\n");
+    std::fprintf(__log_out, ANSI_COLOR_RESET "\n");
 }
 
 
 
-void log_print_pos(int row, int col)
+void log_print_pos(int row, int col, const std::string &filename)
 {
-    std::fprintf(__log_out, "Error:%d:%d: ", row + 1, col + 1);
+    std::fprintf(__log_out, ANSI_COLOR_CYAN "%s:%d:%d: " ANSI_COLOR_BOLDRED "error: " ANSI_COLOR_RESET,
+                 filename.c_str(), row + 1, col + 1);
 }
 
 

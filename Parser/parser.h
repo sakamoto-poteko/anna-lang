@@ -35,8 +35,8 @@
 class AnnaParser
 {
 public:
-    AnnaParser(FILE *in);
-    AnnaParser(char *text, size_t len);
+    AnnaParser(FILE *in, const std::string &fileName);
+    AnnaParser(char *text, size_t len, const std::string &fileName);
     virtual ~AnnaParser();
 
     // FIXME: Change reutrn type
@@ -78,19 +78,20 @@ protected:
     gcnIterationStatement parseIterationStatement();
     gcnWhileStatement parseWhileStatement();
     gcnAssignment parseAssignment();
+    gcnReturnStatement parseReturnStatement();
 
 
     std::vector<gcnToken> tokens;
     unsigned int currentTokenIdx = 0;
     gcnToken currentToken;
 
-    gcnToken eatToken(bool requireT = false);
+    gcnToken eatToken(bool keepNewlineT = false);
 
     // Always use this signature. When there's a kind mismatch,
     // no token will be consumed.
-    gcnToken eatToken(Tokens kind, const char *expected = 0);
+    gcnToken eatToken(Tokens kind, const char *expected = 0, bool keepNewlineT = false);
 
-    gcnToken peekToken(int ahead);
+    gcnToken peekToken(int ahead, bool keepNewlineT = false);
     void revertToken(unsigned int index);
 
 
@@ -110,6 +111,12 @@ protected:
         revertToken(tokenIdxStack.top());
         popTokenStatus();
     }
+
+    bool isNewlineT(const gcnToken &token);
+
+
+
+    std::string _filename;
 };
 
 

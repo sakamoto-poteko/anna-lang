@@ -63,7 +63,7 @@ class AnnaIterationStatementSyntax;
 class AnnaWhileStatementSyntax;
 class AnnaAssignmentSyntax;
 class AnnaFormalParameterSyntax;
-
+class AnnaReturnStatementSyntax;
 
 typedef std::shared_ptr<AnnaEOSSyntax> gcnEOS;
 typedef std::shared_ptr<AnnaCompilationUnitSyntax> gcnCompilationUnit;
@@ -96,6 +96,7 @@ typedef std::shared_ptr<AnnaIterationStatementSyntax> gcnIterationStatement;
 typedef std::shared_ptr<AnnaWhileStatementSyntax> gcnWhileStatement;
 typedef std::shared_ptr<AnnaAssignmentSyntax> gcnAssignment;
 typedef std::shared_ptr<AnnaFormalParameterSyntax> gcnFormalParameter;
+typedef std::shared_ptr<AnnaReturnStatementSyntax> gcnReturnStatement;
 
 // Tokens
 class AnnaToken;

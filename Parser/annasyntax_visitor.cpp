@@ -139,3 +139,7 @@ void AnnaFormalParameterSyntax::Accept(AnnaSyntaxVisitor &visitor)
     visitor.Visit(*this);
 }
 
+void AnnaReturnStatementSyntax::Accept(AnnaSyntaxVisitor &visitor)
+{
+    visitor.Visit(*this);
+}

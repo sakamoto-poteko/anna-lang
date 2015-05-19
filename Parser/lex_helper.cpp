@@ -32,6 +32,7 @@
 extern FILE* annain;
 int annalex();
 static bool use_temp_file_stream;
+static std::string __lex_filename;
 
 static void split_lines(FILE* in)
 {
@@ -47,7 +48,7 @@ static void split_lines(FILE* in)
     fseek(in, current_pos, SEEK_SET);
 }
 
-bool lexer_init(FILE* in)
+bool lexer_init(FILE* in, const std::string &filename)
 {
     lexer_finalize();
 
@@ -55,10 +56,11 @@ bool lexer_init(FILE* in)
     annain = in;
     split_lines(in);
 
+    __lex_filename = filename;
     return true;
 }
 
-bool lexer_init(char* in, size_t len)
+bool lexer_init(char* in, size_t len, const std::string &filename)
 {
     lexer_finalize();
 
@@ -68,6 +70,7 @@ bool lexer_init(char* in, size_t len)
     fseek(annain, 0, SEEK_SET);
     split_lines(annain);
 
+    __lex_filename = filename;
     return true;
 }
 
@@ -167,7 +170,7 @@ gcnToken lex()
                                                lexerToken.token_leng,
                                                lexerToken.trailing_comments);
         case ERROR:
-            log_print_pos(lexerToken.token_row, lexerToken.token_col);
+            log_print_pos(lexerToken.token_row, lexerToken.token_col, __lex_filename);
             std::fprintf(__log_out, "Unrecognized token ``%s''\n", lexerToken.text->c_str());
             log_print_row(lexerToken.token_row);
             log_print_indicators(lexerToken.token_col, lexerToken.token_leng);
@@ -192,5 +195,6 @@ void lexer_finalize()
 
 void log_print_row(int row)
 {
-    std::fprintf(__log_out, get_lex_source_row(row).c_str());
+    std::fputs(get_lex_source_row(row).c_str(), __log_out);
 }
+

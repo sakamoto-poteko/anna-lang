@@ -30,8 +30,8 @@
 
 #include "annatoken.h"
 
-bool lexer_init(FILE *in);
-bool lexer_init(char *in, size_t len);
+bool lexer_init(FILE *in, const std::string &filename);
+bool lexer_init(char *in, size_t len, const std::string &filename);
 void lexer_finalize();
 std::string get_lex_source_row(int row);
 std::vector<std::string> &get_lex_source_rows();
