@@ -35,7 +35,7 @@ bool lexer_init(char *in, size_t len, const std::string &filename);
 void lexer_finalize();
 std::string get_lex_source_row(int row);
 std::vector<std::string> &get_lex_source_rows();
-gcnToken lex();
+gcnToken tokenize();
 void log_print_row(int row);
 void log_print_row(int row, std::stringstream &logstream);
 

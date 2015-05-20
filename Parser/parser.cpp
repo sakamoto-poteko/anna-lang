@@ -52,10 +52,10 @@ gcnCompilationUnit AnnaParser::parse()
 
 bool AnnaParser::lexall()
 {
-    gcnToken token = lex();
+    gcnToken token = tokenize();
     while (token->token() > 0) {
         tokens.push_back(token);
-        token = lex();
+        token = tokenize();
     }
     tokens.push_back(std::make_shared<AnnaToken>(END, std::make_shared<std::string>("EOF"), 0, 0, 0));
     currentToken = tokens.front();

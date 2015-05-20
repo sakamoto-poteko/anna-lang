@@ -1,3 +1,12 @@
+-_- Here's an copyright header >_<
+-_- 
+    It 
+    should
+    be
+    multiline. Note the comments in the beginning will be ignored by parser. 
+    Hence the reformatter must handle it explicitly
+>_<
+
 import stdlib;   -_- This is optional. stdlib is always imported >_< -_- Another comment >_<
 
 var a`6 = false;

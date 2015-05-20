@@ -60,7 +60,7 @@ void ASTPlotterSyntaxVisitor::generateGraph(const std::string &dotFileName)
 {
     std::ofstream dotfile(dotFileName);
     boost::write_graphviz(dotfile, graph, [this](std::ostream &out, auto &v) {
-        NodeProperty node = graph[v];
+        NodeProperty &node = graph[v];
 
         switch (node.type) {
             case NodeProperty::Syntax:
@@ -68,12 +68,12 @@ void ASTPlotterSyntaxVisitor::generateGraph(const std::string &dotFileName)
                     << "\" shape=rect style=\"rounded,filled\" fillcolor=navy fontcolor=white fontname=Courier]";
                 break;
             case NodeProperty::Token:
-                    out << "[label=\"" << escapeGraphviz(node.description)
-                        << "\" shape=rect style=\"rounded,filled\" fillcolor=mediumseagreen fontcolor=white fontname=Courier]";
+                out << "[label=\"" << escapeGraphviz(node.description)
+                    << "\" shape=rect style=\"rounded,filled\" fillcolor=mediumseagreen fontcolor=white fontname=Courier]";
                 break;
             case NodeProperty::Comment:
-                out << "[label=\"" << node.description
-                    << "\" shape=rect style=\"rounded,filled\" fillcolor=gray35 fontcolor=white fontname=Courier]";
+                out << "[label=\"" << node.name
+                    << "\" shape=note style=\"filled\" fillcolor=gray35 fontcolor=white fontname=Courier]";
                 break;
             default:
                 break;
@@ -435,13 +435,13 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaVariableDeclarationStatementSyntax &node
 
     node.VAR->Accept(*this);
     node.VARIABLE_IDENTIFIER->Accept(*this);;
-    node.EOS->Accept(*this);
 
     if (node.hasAssignment) {
         node.EQ_opt->Accept(*this);
         node.primaryExpression_opt->Accept(*this);
     }
 
+    node.EOS->Accept(*this);
     exitNode();
 }
 

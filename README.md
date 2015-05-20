@@ -4,7 +4,7 @@ __Anna language (annalang)__ is an experimental programming language designed to
 
 ## Modules
 
-- Parser: Lexer (`lex`) and parser (hand-written recursive descent parser) of annalang
+- Parser: Tokenizer (lex) and parser (hand-written recursive descent parser) of annalang
 - AstPlot: Graph generator for Abstract Syntax Tree
 - ParserTest: Parser driver used in development. Can be treated as a minimal example
 

@@ -34,7 +34,7 @@ static std::vector<std::string> source_rows;
 
 void advance_token()
 {
-    lexerToken.clear();
+//    lexerToken.clear(); // moved to tokenize()
     lexerToken.token_row = current_row;
     lexerToken.token_col = current_column;
     lexerToken.token_leng = annaleng;
@@ -44,7 +44,7 @@ void advance_token()
 
 void advance_row()
 {
-    advance_token(); ++current_row; current_column = 0;    
+    advance_token(); ++current_row; current_column = 0;
 }
 
 std::string get_lex_source_row(int row)

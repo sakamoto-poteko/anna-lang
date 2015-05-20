@@ -115,7 +115,8 @@ protected:
         return g;
     }
 
-    ASTGraphDescriptor createTokenNode(const std::string &name, int row, int col, const std::string &text, std::vector<std::string> comments)
+    ASTGraphDescriptor createTokenNode(const std::string &name, int row, int col,
+                                       const std::string &text, std::vector<std::string> comments)
     {
         ASTGraphDescriptor g = graph.add_vertex();
         graph[g].type = NodeProperty::Token;
@@ -137,7 +138,7 @@ protected:
     ASTGraphDescriptor createCommentNode(const std::string &comment)
     {
         ASTGraphDescriptor g = graph.add_vertex();
-        graph[g].type = NodeProperty::Token;
+        graph[g].type = NodeProperty::Comment;
         graph[g].name = "comment";
         graph[g].description = comment;
         boost::add_edge(nodes.top(), g, graph);

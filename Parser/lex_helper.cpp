@@ -74,9 +74,13 @@ bool lexer_init(char* in, size_t len, const std::string &filename)
     return true;
 }
 
-gcnToken lex()
+gcnToken tokenize()
 {
     int lex_val = annalex();
+
+    auto tComments = lexerToken.trailing_comments;
+    lexerToken.trailing_comments.clear();
+
     switch (lex_val) {
         case DEF:
         case MAIN:
@@ -118,7 +122,7 @@ gcnToken lex()
                                                lexerToken.token_row,
                                                lexerToken.token_col,
                                                lexerToken.token_leng,
-                                               lexerToken.trailing_comments);
+                                               tComments);
 
         case USER_FUNCTION_IDENTIFIER:
         case IDENTIFIER:
@@ -129,7 +133,7 @@ gcnToken lex()
                                                      lexerToken.token_col,
                                                      lexerToken.token_leng,
                                                      lexerToken.identifier,
-                                                     lexerToken.trailing_comments);
+                                                     tComments);
         case STRING:
             return std::make_shared<StringToken>(static_cast<Tokens>(lex_val),
                                                  lexerToken.text,
@@ -137,7 +141,7 @@ gcnToken lex()
                                                  lexerToken.token_col,
                                                  lexerToken.token_leng,
                                                  lexerToken.string,
-                                                 lexerToken.trailing_comments);
+                                                 tComments);
         case REAL:
             return std::make_shared<RealToken>(static_cast<Tokens>(lex_val),
                                                lexerToken.text,
@@ -145,7 +149,7 @@ gcnToken lex()
                                                lexerToken.token_col,
                                                lexerToken.token_leng,
                                                lexerToken.real,
-                                               lexerToken.trailing_comments);
+                                               tComments);
         case INTEGER:
             return std::make_shared<IntegerToken>(static_cast<Tokens>(lex_val),
                                                   lexerToken.text,
@@ -153,7 +157,7 @@ gcnToken lex()
                                                   lexerToken.token_col,
                                                   lexerToken.token_leng,
                                                   lexerToken.integer,
-                                                  lexerToken.trailing_comments);
+                                                  tComments);
         case BOOLEAN:
             return std::make_shared<BooleanToken>(static_cast<Tokens>(lex_val),
                                                   lexerToken.text,
@@ -161,14 +165,14 @@ gcnToken lex()
                                                   lexerToken.token_col,
                                                   lexerToken.token_leng,
                                                   lexerToken.boolean,
-                                                  lexerToken.trailing_comments);
+                                                  tComments);
         case 0:
             return std::make_shared<AnnaToken>(END,
                                                lexerToken.text,
                                                lexerToken.token_row,
                                                lexerToken.token_col,
                                                lexerToken.token_leng,
-                                               lexerToken.trailing_comments);
+                                               tComments);
         case ERROR:
             log_print_pos(lexerToken.token_row, lexerToken.token_col, __lex_filename);
             std::fprintf(__log_out, "Unrecognized token ``%s''\n", lexerToken.text->c_str());
@@ -179,7 +183,7 @@ gcnToken lex()
                                                lexerToken.token_row,
                                                lexerToken.token_col,
                                                lexerToken.token_leng,
-                                               lexerToken.trailing_comments);
+                                               tComments);
             break;
         default:
             throw;  // Should not happen
