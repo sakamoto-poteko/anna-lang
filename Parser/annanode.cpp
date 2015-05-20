@@ -27,5 +27,6 @@
 
 void AnnaNode::Accept(AnnaSyntaxVisitor &visitor)
 {
+    (void)visitor;
     throw;  // Implement own accept in child
 }

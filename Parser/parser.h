@@ -31,6 +31,8 @@
 #include "annasyntax.h"
 
 #include <stack>
+#include <sstream>
+#include <iostream>
 
 class AnnaParser
 {
@@ -43,6 +45,14 @@ public:
     static void ParseText(gcString text);
 
     gcnCompilationUnit parse();
+
+    void printErrors()
+    {
+        while (!errorStreams.empty()) {
+            std::cout << errorStreams.top()->str();
+            errorStreams.pop();
+        }
+    }
 
 protected:
     bool lexall();
@@ -85,38 +95,55 @@ protected:
     unsigned int currentTokenIdx = 0;
     gcnToken currentToken;
 
-    gcnToken eatToken(bool keepNewlineT = false);
+    gcnToken eatToken(bool dontIgnoreNewlineT = false);
 
     // Always use this signature. When there's a kind mismatch,
     // no token will be consumed.
-    gcnToken eatToken(Tokens kind, const char *expected = 0, bool keepNewlineT = false);
+    gcnToken eatToken(Tokens kind, const char *expected = 0, const char *caller = "", bool dontIgnoreNewlineT = false);
 
-    gcnToken peekToken(int ahead, bool keepNewlineT = false);
+    gcnToken peekToken(int ahead = 0, bool dontIgnoreNewlineT = false);
     void revertToken(unsigned int index);
 
 
+    // Parser status stacks
     std::stack<unsigned int> tokenIdxStack;
-    void pushTokenStatus()
+    std::stack<std::shared_ptr<std::stringstream>> pathErrorStack;
+    std::stack<std::shared_ptr<std::stringstream>> errorStreams;
+
+    std::stringstream &currentErrorStream()
     {
+        return *pathErrorStack.top();
+    }
+
+    void pushParserStatus()
+    {
+        pathErrorStack.push(std::make_shared<std::stringstream>());
+        errorStreams.push(std::make_shared<std::stringstream>());
         tokenIdxStack.push(currentTokenIdx);
     }
 
-    void popTokenStatus()
+    void popParserStatus()
     {
+        pathErrorStack.pop();
+        errorStreams.pop();
         tokenIdxStack.pop();
     }
 
-    void revertTokenStatus()
+    void revertParserStatus()
     {
+        *errorStreams.top() << pathErrorStack.top()->str();
+        pathErrorStack.pop();
         revertToken(tokenIdxStack.top());
-        popTokenStatus();
+        tokenIdxStack.pop();
     }
+
 
     bool isNewlineT(const gcnToken &token);
 
 
 
     std::string _filename;
+    bool isPossiblePrimaryExpression();
 };
 
 

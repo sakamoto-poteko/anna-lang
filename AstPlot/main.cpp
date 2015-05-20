@@ -36,6 +36,11 @@ int main()
 
     AnnaParser parser(f, "sample.anna");
     gcnCompilationUnit root = parser.parse();
+    parser.printErrors();
+
+    if (!root)
+        std::printf("parse failed\n");
+
     ASTPlotterSyntaxVisitor visitor;
     visitor.Visit(*root);
     visitor.generateGraph("graph.dot");

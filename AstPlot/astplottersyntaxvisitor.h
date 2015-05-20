@@ -152,6 +152,7 @@ protected:
     ASTGraph graph;
 
     std::stack<ASTGraphDescriptor> nodes;
+    static std::string escapeGraphviz(const std::string &origin);
 };
 
 #endif // ASTPLOTTERSYNTAXVISITOR_H

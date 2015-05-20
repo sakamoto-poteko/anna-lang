@@ -198,3 +198,7 @@ void log_print_row(int row)
     std::fputs(get_lex_source_row(row).c_str(), __log_out);
 }
 
+void log_print_row(int row, std::stringstream &logstream)
+{
+    logstream << get_lex_source_row(row).c_str();
+}

@@ -23,7 +23,7 @@
  ***************************************************************************/
 
 #include "parser_global.h"
-
+#include <sstream>
 #include <cstdio>
 
 void set_log_output(FILE *out)
@@ -41,7 +41,15 @@ void log_print_indicators(int start, int width)
     std::fprintf(__log_out, ANSI_COLOR_RESET "\n");
 }
 
-
+void log_print_indicators(int start, int width, std::stringstream &logstream)
+{
+    logstream << ANSI_COLOR_BOLDGREEN;
+    for (int i = 0; i < start; ++i)
+        logstream << " ";
+    for (int i = 0; i < width; ++i)
+        logstream << "^";
+    logstream << ANSI_COLOR_RESET "\n";
+}
 
 void log_print_pos(int row, int col, const std::string &filename)
 {
@@ -49,5 +57,10 @@ void log_print_pos(int row, int col, const std::string &filename)
                  filename.c_str(), row + 1, col + 1);
 }
 
+void log_print_pos(int row, int col, const std::string &filename, std::stringstream &logstream)
+{
+    logstream << ANSI_COLOR_CYAN << filename.c_str() << ":" << row + 1 << ":"
+              << col + 1 << ": " ANSI_COLOR_BOLDRED "error: " ANSI_COLOR_RESET;
+}
 
 FILE *__log_out = stdout;

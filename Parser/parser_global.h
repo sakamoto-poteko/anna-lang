@@ -83,7 +83,8 @@ typedef std::shared_ptr<std::string> gcString;
 void set_log_output(FILE *out);
 extern FILE *__log_out;
 void log_print_indicators(int start, int width);
+void log_print_indicators(int start, int width, std::stringstream &logstream);
 void log_print_pos(int row, int col, const std::string &filename);
-
+void log_print_pos(int row, int col, const std::string &filename, std::stringstream &logstream);
 
 #endif // PARSER_GLOBAL_H

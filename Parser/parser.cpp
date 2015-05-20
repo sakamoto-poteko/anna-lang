@@ -69,14 +69,14 @@ bool AnnaParser::lexall()
 
 gcnEOS AnnaParser::parseEOS()
 {
-    pushTokenStatus();
+    pushParserStatus();
     std::vector<gcnToken> eos;
 
-    gcnToken tok = eatToken(T, "end of statement (i.e. `;' or `\\n')", true);
+    gcnToken tok = eatToken(T, "end of statement (i.e. `;' or `\\n')", __func__, true);
     if (tok)
         eos.push_back(tok);
     else {
-        revertTokenStatus();
+        revertParserStatus();
         return gcnEOS();
     }
 
@@ -85,110 +85,117 @@ gcnEOS AnnaParser::parseEOS()
         eos.push_back(tok);
     }
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaEOSSyntax>(eos);
 }
 
 gcnCompilationUnit AnnaParser::parseCompilationUnit()
 {
-    pushTokenStatus();
+    pushParserStatus();
     std::vector<gcnImportDirective> imports;
     std::vector<gcnVariableDeclarationStatement> variableDeclarations;
     std::vector<gcnFunctionDefinition> functionDefinitions;
 
-    // Import Directives
-    // isPossibleImport
     while (1) {
-        gcnImportDirective import = parseImportDirective();
-        if (import)
-            imports.push_back(import);
-        else
-            break;
-    }
+        if (peekToken()->token() == IMPORT) {
+            gcnImportDirective import = parseImportDirective();
+            if (import) {
+                imports.push_back(import);
+                continue;
+            }
+        }
 
-    // isPossibleVariableDeclaration
-    while (1) {
-        gcnVariableDeclarationStatement variableDeclaration = parseVariableDeclarationStatement();
-        if (variableDeclaration)
-            variableDeclarations.push_back(variableDeclaration);
-        else
-            break;
-    }
+        if (peekToken()->token() == VAR) {
+            gcnVariableDeclarationStatement variableDeclaration = parseVariableDeclarationStatement();
+            if (variableDeclaration) {
+                variableDeclarations.push_back(variableDeclaration);
+                continue;
+            }
+        }
 
-    // isPossibleFunctionDefinition
-    while (1) {
-        gcnFunctionDefinition functionDefinition = parseFunctionDefinition();
-        if (functionDefinition)
-            functionDefinitions.push_back(functionDefinition);
-        else
-            break;
-    }
+        if (peekToken()->token() == DEF) {
+            gcnFunctionDefinition functionDefinition = parseFunctionDefinition();
+            if (functionDefinition) {
+                functionDefinitions.push_back(functionDefinition);
+                continue;
+            }
+        }
 
-    popTokenStatus();
-    return std::make_shared<AnnaCompilationUnitSyntax>(imports, variableDeclarations, functionDefinitions);
+        if (peekToken()->token() == END) {
+            if (imports.empty() && variableDeclarations.empty() && functionDefinitions.empty()) {
+                revertParserStatus();
+                return gcnCompilationUnit();
+            } else {
+                popParserStatus();
+                return std::make_shared<AnnaCompilationUnitSyntax>(imports, variableDeclarations, functionDefinitions);
+            }
+        }
+    }
 }
 
 gcnImportDirective AnnaParser::parseImportDirective()
 {
-    pushTokenStatus();
+    assert(peekToken()->token() == IMPORT);
+
+    pushParserStatus();
     gcnToken import;
     gcnIdentifierToken identifier;
     gcnEOS eos;
 
-    import = eatToken(IMPORT, "`import'");
+    import = eatToken(IMPORT, "`import'", __func__);
     if (!import) goto not_import_directive;
 
-    identifier = std::static_pointer_cast<IdentifierToken>(eatToken(IDENTIFIER, "identifier"));
+    identifier = std::static_pointer_cast<IdentifierToken>(eatToken(IDENTIFIER, "identifier", __func__));
     if (!identifier) goto not_import_directive;
 
     eos = parseEOS();
     if (!eos) goto not_import_directive;
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaImportDirectiveSyntax>(import, identifier, eos);
 
 not_import_directive:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnImportDirective();
 }
 
 gcnFunctionIdentifier AnnaParser::parseFunctionIdentifier()
 {
-    pushTokenStatus();
+    pushParserStatus();
 
     switch (peekToken(0)->token()) {
         case USER_FUNCTION_IDENTIFIER:
         case IDENTIFIER:
-            popTokenStatus();
+            popParserStatus();
             return std::make_shared<AnnaFunctionIdentifierSyntax>
                     (std::static_pointer_cast<IdentifierToken>(eatToken()));
         default:
-            revertTokenStatus();
+            revertParserStatus();
             return gcnFunctionIdentifier();
     }
 }
 
 gcnExpression AnnaParser::parseExpression()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnExpression expr;
 
     expr = parseBinaryOperationExpression();
-    if (expr) { popTokenStatus(); return expr; }
+    if (expr) { popParserStatus(); return expr; }
 
     expr = parseUnaryExpression();
-    if (expr) { popTokenStatus(); return expr; }
+    if (expr) { popParserStatus(); return expr; }
 
     expr = parseAssignment();
-    if (expr) { popTokenStatus(); return expr; }
+    if (expr) { popParserStatus(); return expr; }
 
-    revertTokenStatus();
+    revertParserStatus();
     return gcnExpression();
 }
 
 gcnBinaryOperationExpression AnnaParser::parseBinaryOperationExpression()
 {
-    pushTokenStatus();
+    pushParserStatus();
 
     gcnUnaryExpression left;
     gcnBinaryOperator op;
@@ -203,105 +210,124 @@ gcnBinaryOperationExpression AnnaParser::parseBinaryOperationExpression()
     right = parseExpression();
     if (!right) goto not_binary_op_expr;
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaBinaryOperationExpressionSyntax>(left, op, right);
 
 not_binary_op_expr:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnBinaryOperationExpression();
 }
 
 gcnUnaryExpression AnnaParser::parseUnaryExpression()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnUnaryExpression expr;
 
-    expr = parsePrimaryExpression();
-    if (expr) { popTokenStatus(); return expr; }
+    if (isPossiblePrimaryExpression()) {
+        expr = parsePrimaryExpression();
+        if (expr) { popParserStatus(); return expr; }
+    }
 
-    revertTokenStatus();
+    revertParserStatus();
     return gcnUnaryExpression();
+}
+
+bool AnnaParser::isPossiblePrimaryExpression()
+{
+    switch(peekToken()->token()){
+        case STRING:
+        case REAL:
+        case INTEGER:
+        case BOOLEAN:
+        case IDENTIFIER:
+        case VARIABLE_IDENTIFIER:
+        case USER_FUNCTION_IDENTIFIER:
+        case OPEN_PAREN:
+            return true;
+        default:
+            return false;
+    }
 }
 
 gcnPrimaryExpression AnnaParser::parsePrimaryExpression()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnPrimaryExpression expr;
 
     expr = parseLiteral();
-    if (expr) { popTokenStatus(); return expr; }
+    if (expr) { popParserStatus(); return expr; }
 
     expr = parseParenthesizedExpression();
-    if (expr) { popTokenStatus(); return expr; }
+    if (expr) { popParserStatus(); return expr; }
 
     expr = parseInvocationExpression();
-    if (expr) { popTokenStatus(); return expr; }
+    if (expr) { popParserStatus(); return expr; }
 
     expr = parseSimpleName();
-    if (expr) { popTokenStatus(); return expr; }
+    if (expr) { popParserStatus(); return expr; }
 
-    revertTokenStatus();
+    revertParserStatus();
     return gcnPrimaryExpression();
 }
 
 gcnSimpleName AnnaParser::parseSimpleName()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnToken sn;
-    sn = eatToken(VARIABLE_IDENTIFIER, "variable identifier /an+a/");
+    sn = eatToken(VARIABLE_IDENTIFIER, "variable identifier /an+a/", __func__);
     if (!sn) {
-        revertTokenStatus();
+        revertParserStatus();
         return gcnSimpleName();
     }
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaSimpleNameSyntax>(sn);
 }
 
 gcnLiteral AnnaParser::parseLiteral()
 {
-    pushTokenStatus();
+    pushParserStatus();
     switch (peekToken(0)->token()) {
         case STRING:
         case REAL:
         case INTEGER:
         case BOOLEAN:
-            popTokenStatus();
+            popParserStatus();
             return std::make_shared<AnnaLiteralSyntax>
                     (std::static_pointer_cast<LiteralToken>(eatToken()));
         default:
-            revertTokenStatus();
+            revertParserStatus();
             return gcnLiteral();
     }
 }
 
 gcnParenthesizedExpression AnnaParser::parseParenthesizedExpression()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnToken lPa;
     gcnExpression expr;
     gcnToken rPa;
 
-    lPa = eatToken(OPEN_PAREN, "`('");
+    lPa = eatToken(OPEN_PAREN, "`('", __func__);
     if (!lPa) goto not_parenthesized_expr;
 
     expr = parseExpression();
     if (!expr) goto not_parenthesized_expr;
 
-    rPa = eatToken(CLOSE_PAREN, "`('");
+    rPa = eatToken(CLOSE_PAREN, "`('", __func__);
     if (!rPa) goto not_parenthesized_expr;
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaParenthesizedExpressionSyntax>(lPa, expr, rPa);
 
 not_parenthesized_expr:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnParenthesizedExpression();
 }
 
 gcnBinaryOperator AnnaParser::parseBinaryOperator()
 {
-    pushTokenStatus();
+    pushParserStatus();
     switch (peekToken(0)->token()) {
         case GE:
         case LE:
@@ -323,17 +349,17 @@ gcnBinaryOperator AnnaParser::parseBinaryOperator()
         case DIV:
         case MOD:
 
-            popTokenStatus();
+            popParserStatus();
             return std::make_shared<AnnaBinaryOperatorSyntax>(eatToken());
         default:
-            revertTokenStatus();
+            revertParserStatus();
             return gcnBinaryOperator();
     }
 }
 
 gcnInvocationExpression AnnaParser::parseInvocationExpression()
 {
-    pushTokenStatus();
+    pushParserStatus();
 
     gcnFunctionIdentifier id;
     gcnArgumentList list;
@@ -343,20 +369,20 @@ gcnInvocationExpression AnnaParser::parseInvocationExpression()
 
     id = parseFunctionIdentifier();
     if (!id) {
-        revertTokenStatus();
+        revertParserStatus();
         return gcnInvocationExpression();
     }
 
     if (peekToken(0)->token() == OPEN_PAREN) {
         optOpenP = eatToken();
         list = parseArgumentList();
-        optCloseP = eatToken(CLOSE_PAREN, "`)'");
-        if (!!optOpenP || !optCloseP) {
-            revertTokenStatus();
+        optCloseP = eatToken(CLOSE_PAREN, "`)'", __func__);
+        if (!optOpenP || !optCloseP) {
+            revertParserStatus();
             return gcnInvocationExpression();
         }
 
-        popTokenStatus();
+        popParserStatus();
         if (list)
             return std::make_shared<AnnaInvocationExpressionSyntax>(id, optOpenP, list, optCloseP);
         else
@@ -365,7 +391,7 @@ gcnInvocationExpression AnnaParser::parseInvocationExpression()
     } else {
         list = parseArgumentList();
 
-        popTokenStatus();
+        popParserStatus();
         if (list)
             return std::make_shared<AnnaInvocationExpressionSyntax>(id, list);
         else
@@ -375,14 +401,14 @@ gcnInvocationExpression AnnaParser::parseInvocationExpression()
 
 gcnArgumentList AnnaParser::parseArgumentList()
 {
-    pushTokenStatus();
+    pushParserStatus();
     AnnaSeperatedList<gcnExpression> list;
 
     gcnExpression expr;
 
     expr = parseExpression();
     if (!expr) {
-        revertTokenStatus();
+        revertParserStatus();
         return gcnArgumentList();
     } else
         list.add(expr);
@@ -391,79 +417,84 @@ gcnArgumentList AnnaParser::parseArgumentList()
         list.addSeperator(eatToken());
         expr = parseExpression();
         if (!expr) {
-            revertTokenStatus();
+            revertParserStatus();
             return gcnArgumentList();
         }
+        list.add(expr);
     }
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaArgumentListSyntax>(list);
 }
 
 gcnFunctionDefinition AnnaParser::parseFunctionDefinition()
 {
-    pushTokenStatus();
+    assert(peekToken()->token() == DEF);
+
+    pushParserStatus();
     gcnFunctionHeader header;
     gcnFunctionBody body;
     header = parseFunctionHeader();
     if (!header) goto not_function_definition;
     body = parseFunctionBody();
-    if (!body)goto not_function_definition;
+    if (!body) goto not_function_definition;
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaFunctionDefinitionSyntax>(header, body);
 
 not_function_definition:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnFunctionDefinition();
 }
 
 gcnFunctionHeader AnnaParser::parseFunctionHeader()
 {
-    pushTokenStatus();
+    assert(peekToken()->token() == DEF);
+
+    pushParserStatus();
     gcnToken def;
     gcnIdentifierToken id;
     gcnToken openPar;
     gcnFormalParameterList parameters;
     gcnToken closePar;
     bool hasParam;
-    def = eatToken(DEF, "`def'");
+    def = eatToken(DEF, "`def'", __func__);
     if (!def) goto not_function_header;
 
     id = std::static_pointer_cast<IdentifierToken>
             (eatToken(USER_FUNCTION_IDENTIFIER, "user function identifier starts with @"));
     if (!id) goto not_function_header;
 
-    openPar = eatToken(OPEN_PAREN, "`('");
+    openPar = eatToken(OPEN_PAREN, "`('", __func__);
     if (!openPar) goto not_function_header;
 
     if (peekToken(0)->token() == CLOSE_PAREN) {
         hasParam = false;
-        closePar = eatToken(CLOSE_PAREN, "`)'");
+        closePar = eatToken(CLOSE_PAREN, "`)'", __func__);
         if (!closePar) goto not_function_header;
     } else {
         hasParam = true;
         parameters = parseFormalParameterList();
         if (!parameters) goto not_function_header;
 
-        closePar = eatToken(CLOSE_PAREN, "`)'");
+        closePar = eatToken(CLOSE_PAREN, "`)'", __func__);
         if (!closePar) goto not_function_header;
     }
 
-    popTokenStatus();
+    popParserStatus();
     if (hasParam)
         return std::make_shared<AnnaFunctionHeaderSyntax>(def, id, openPar, parameters, closePar);
     else
         return std::make_shared<AnnaFunctionHeaderSyntax>(def, id, openPar, closePar);
 
 not_function_header:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnFunctionHeader();
 }
 
 gcnFormalParameterList AnnaParser::parseFormalParameterList()
 {
-    pushTokenStatus();
+    pushParserStatus();
     AnnaSeperatedList<gcnFormalParameter> list;
     gcnFormalParameter param;
 
@@ -474,7 +505,7 @@ gcnFormalParameterList AnnaParser::parseFormalParameterList()
         list.add(param);
 
     while (peekToken(0)->token() == COMMA) {
-        gcnToken comma = eatToken(COMMA, "`,'");
+        gcnToken comma = eatToken(COMMA, "`,'", __func__);
         assert(comma);
         param = parseFormalParameter();
         if (!param)
@@ -482,50 +513,50 @@ gcnFormalParameterList AnnaParser::parseFormalParameterList()
         list.addSeperator(comma);
         list.add(param);
     }
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaFormalParameterListSyntax>(list);
 
 not_formal_param_list:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnFormalParameterList();
 }
 
 gcnFormalParameter AnnaParser::parseFormalParameter()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnIdentifierToken param;
-    param = std::static_pointer_cast<IdentifierToken>(eatToken(VARIABLE_IDENTIFIER, "variable identifier /an+a/"));
+    param = std::static_pointer_cast<IdentifierToken>(eatToken(VARIABLE_IDENTIFIER, "variable identifier /an+a/", __func__));
     if (!param) {
-        revertTokenStatus();
+        revertParserStatus();
         return gcnFormalParameter();
     } else {
-        popTokenStatus();
+        popParserStatus();
         return std::make_shared<AnnaFormalParameterSyntax>(param);
     }
 }
 
 gcnFunctionBody AnnaParser::parseFunctionBody()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnBlock block = parseBlock();
     if (!block) {
-        revertTokenStatus();
+        revertParserStatus();
         return gcnFunctionBody();
     }
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaFunctionBodySyntax>(block);
 }
 
 gcnBlock AnnaParser::parseBlock()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnToken openBra;
     gcnToken closeBra;
     std::vector<gcnStatement> statements;
     gcnStatement statement;
 
-    openBra = eatToken(OPEN_BRACE, "`{'");
+    openBra = eatToken(OPEN_BRACE, "`{'", __func__);
     if (!openBra) goto not_block;
 
     do {
@@ -534,7 +565,7 @@ gcnBlock AnnaParser::parseBlock()
             statements.push_back(statement);
     } while (statement);
 
-    closeBra = eatToken(CLOSE_BRACE, "`}'");
+    closeBra = eatToken(CLOSE_BRACE, "`}'", __func__);
     if (!closeBra) goto not_block;
 
     // This will allow empty block
@@ -543,59 +574,63 @@ gcnBlock AnnaParser::parseBlock()
         goto not_block;
     }
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaBlockSyntax>(openBra, statements, closeBra);
 
 not_block:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnBlock();
 }
 
 gcnStatement AnnaParser::parseStatement()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnStatement stat;
 
-    stat = parseVariableDeclarationStatement();
-    if (stat) { popTokenStatus(); return stat; }
+    if (peekToken()->token() == VAR) {
+        stat = parseVariableDeclarationStatement();
+        if (stat) { popParserStatus(); return stat; }
+    }
 
     stat = parseEmbeddedStatement();
-    if (stat) { popTokenStatus(); return stat; }
+    if (stat) { popParserStatus(); return stat; }
 
-    revertTokenStatus();
+    revertParserStatus();
     return gcnStatement();
 }
 
 gcnEmbeddedStatement AnnaParser::parseEmbeddedStatement()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnEmbeddedStatement stat;
 
     stat = parseBlock();
-    if (stat) { popTokenStatus(); return stat; }
+    if (stat) { popParserStatus(); return stat; }
 
     stat = parseIterationStatement();
-    if (stat) { popTokenStatus(); return stat; }
+    if (stat) { popParserStatus(); return stat; }
 
     stat = parseSelectionStatement();
-    if (stat) { popTokenStatus(); return stat; }
+    if (stat) { popParserStatus(); return stat; }
 
     stat = parseExpressionStatement();
-    if (stat) { popTokenStatus(); return stat; }
+    if (stat) { popParserStatus(); return stat; }
 
     stat = parseReturnStatement();
-    if (stat) { popTokenStatus(); return stat; }
+    if (stat) { popParserStatus(); return stat; }
 
     stat = parseEmptyStatement();
-    if (stat) { popTokenStatus(); return stat; }
+    if (stat) { popParserStatus(); return stat; }
 
-    revertTokenStatus();
+    revertParserStatus();
     return gcnEmbeddedStatement();
 }
 
 gcnVariableDeclarationStatement AnnaParser::parseVariableDeclarationStatement()
 {
-    pushTokenStatus();
+    assert(peekToken()->token() == VAR);
+
+    pushParserStatus();
     gcnToken var;
     gcnIdentifierToken varid;
     bool hasAssign = false;
@@ -603,7 +638,7 @@ gcnVariableDeclarationStatement AnnaParser::parseVariableDeclarationStatement()
     gcnPrimaryExpression primaryExpr;
     gcnEOS eos;
 
-    var = eatToken(VAR, "`var");
+    var = eatToken(VAR, "`var", __func__);
     if (!var) goto not_var_declaration;
 
     varid = std::static_pointer_cast<IdentifierToken>(eatToken(VARIABLE_IDENTIFIER));
@@ -612,7 +647,7 @@ gcnVariableDeclarationStatement AnnaParser::parseVariableDeclarationStatement()
     if (peekToken(0)->token() == EQ) {
         hasAssign = true;
 
-        eq = eatToken(EQ, "`='");
+        eq = eatToken(EQ, "`='", __func__);
         if (!eq) goto not_var_declaration;
 
         primaryExpr = parsePrimaryExpression();
@@ -627,36 +662,36 @@ gcnVariableDeclarationStatement AnnaParser::parseVariableDeclarationStatement()
     }
 
     if (hasAssign) {
-        popTokenStatus();
+        popParserStatus();
         return std::make_shared<AnnaVariableDeclarationStatementSyntax>
                 (var, varid, eq, primaryExpr, eos);
     } else {
-        popTokenStatus();
+        popParserStatus();
         return std::make_shared<AnnaVariableDeclarationStatementSyntax>
                 (var, varid, eos);
     }
 
 not_var_declaration:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnVariableDeclarationStatement();
 }
 
 gcnEmptyStatement AnnaParser::parseEmptyStatement()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnEOS eos = parseEOS();
     if (eos) {
-        popTokenStatus();
+        popParserStatus();
         return std::make_shared<AnnaEmptyStatementSyntax>(eos);
     } else {
-        revertTokenStatus();
+        revertParserStatus();
         return gcnEmptyStatement();
     }
 }
 
 gcnExpressionStatement AnnaParser::parseExpressionStatement()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnStatementExpression statExpr;
     gcnEOS eos;
     statExpr = parseStatementExpression();
@@ -664,63 +699,63 @@ gcnExpressionStatement AnnaParser::parseExpressionStatement()
     eos = parseEOS();
     if (!eos) goto not_expr_statement;
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaExpressionStatementSyntax>(statExpr, eos);
 
 not_expr_statement:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnExpressionStatement();
 }
 
 gcnStatementExpression AnnaParser::parseStatementExpression()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnStatementExpression expr;
 
     expr = parseInvocationExpression();
-    if (expr) { popTokenStatus(); return expr; }
+    if (expr) { popParserStatus(); return expr; }
 
     expr = parseAssignment();
-    if (expr) { popTokenStatus(); return expr; }
+    if (expr) { popParserStatus(); return expr; }
 
-    revertTokenStatus();
+    revertParserStatus();
     return gcnStatementExpression();
 }
 
 gcnSelectionStatement AnnaParser::parseSelectionStatement()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnSelectionStatement stat;
 
     // isPossibleIf
     if (peekToken(0)->token() == IF) {
         stat = parseIfStatement();
-        if (stat) { popTokenStatus(); return stat; }
+        if (stat) { popParserStatus(); return stat; }
     }
 
-    revertTokenStatus();
+    revertParserStatus();
     return gcnSelectionStatement();
 }
 
 gcnIfStatement AnnaParser::parseIfStatement()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnToken _if;
     gcnToken openPar;
     gcnExpression expr;
     gcnToken closePar;
     gcnEmbeddedStatement stat;
 
-    _if = eatToken(IF, "`if");
+    _if = eatToken(IF, "`if", __func__);
     if (!_if) goto not_if_statement;
 
-    openPar = eatToken(OPEN_PAREN, "`('");
+    openPar = eatToken(OPEN_PAREN, "`('", __func__);
     if (!openPar) goto not_if_statement;
 
     expr = parseExpression();
     if (!expr) goto not_if_statement;
 
-    closePar = eatToken(CLOSE_PAREN, "`)'");
+    closePar = eatToken(CLOSE_PAREN, "`)'", __func__);
     if (!closePar) goto not_if_statement;
 
     stat = parseEmbeddedStatement();
@@ -729,41 +764,41 @@ gcnIfStatement AnnaParser::parseIfStatement()
     if (peekToken(0)->token() == ELSE) {
         gcnToken _else;
         gcnEmbeddedStatement elseStat;
-        _else = eatToken(ELSE, "`else'");
+        _else = eatToken(ELSE, "`else'", __func__);
         if (!_else) goto not_if_statement;
 
         elseStat = parseEmbeddedStatement();
         if (!elseStat) goto not_if_statement;
 
-        popTokenStatus();
+        popParserStatus();
         return std::make_shared<AnnaIfStatementSyntax>
                 (_if, openPar, expr, closePar, stat, _else, elseStat);
     }
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaIfStatementSyntax>(_if, openPar, expr, closePar, stat);
 
 not_if_statement:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnIfStatement();
 }
 
 gcnIterationStatement AnnaParser::parseIterationStatement()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnIterationStatement stat;
 
     // isPossibleWhile
     stat = parseWhileStatement();
-    if (stat) { popTokenStatus(); return stat; }
+    if (stat) { popParserStatus(); return stat; }
 
-    popTokenStatus();
+    popParserStatus();
     return gcnIterationStatement();
 }
 
 gcnWhileStatement AnnaParser::parseWhileStatement()
 {
-    pushTokenStatus();
+    pushParserStatus();
 
     gcnToken _while;
     gcnToken openPar;
@@ -771,32 +806,32 @@ gcnWhileStatement AnnaParser::parseWhileStatement()
     gcnToken closePar;
     gcnEmbeddedStatement stats;
 
-    _while = eatToken(WHILE, "`while'");
+    _while = eatToken(WHILE, "`while'", __func__);
     if (!_while) goto not_while_statement;
 
-    openPar = eatToken(OPEN_PAREN, "`('");
+    openPar = eatToken(OPEN_PAREN, "`('", __func__);
     if (!openPar) goto not_while_statement;
 
     expr = parseExpression();
     if (!expr) goto not_while_statement;
 
-    closePar = eatToken(CLOSE_PAREN, "`)'");
+    closePar = eatToken(CLOSE_PAREN, "`)'", __func__);
     if (!closePar) goto not_while_statement;
 
     stats = parseEmbeddedStatement();
     if (!stats) goto not_while_statement;
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaWhileStatementSyntax>(_while, openPar, expr, closePar, stats);
 
 not_while_statement:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnWhileStatement();
 }
 
 gcnAssignment AnnaParser::parseAssignment()
 {
-    pushTokenStatus();
+    pushParserStatus();
 
     gcnSimpleName left;
     gcnToken eq;
@@ -805,28 +840,28 @@ gcnAssignment AnnaParser::parseAssignment()
     left = parseSimpleName();
     if (!left) goto not_assignment;
 
-    eq = eatToken(EQ, "``=''");
+    eq = eatToken(EQ, "``=''", __func__);
     if (!eq) goto not_assignment;
 
     right = parseExpression();
     if (!right) goto not_assignment;
 
-    popTokenStatus();
+    popParserStatus();
     return std::make_shared<AnnaAssignmentSyntax>(left, eq, right);
 
 not_assignment:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnAssignment();
 }
 
 gcnReturnStatement AnnaParser::parseReturnStatement()
 {
-    pushTokenStatus();
+    pushParserStatus();
     gcnToken ret;
     gcnExpression expr;
     gcnEOS eos;
 
-    ret = eatToken(RETURN, "`return'");
+    ret = eatToken(RETURN, "`return'", __func__);
     if (!ret) goto not_return_statement;
 
     if (peekToken(0, true)->token() == T) {
@@ -844,14 +879,14 @@ gcnReturnStatement AnnaParser::parseReturnStatement()
     }
 
 not_return_statement:
-    revertTokenStatus();
+    revertParserStatus();
     return gcnReturnStatement();
 }
 
 
-gcnToken AnnaParser::eatToken(bool keepNewlineT)
+gcnToken AnnaParser::eatToken(bool dontIgnoreNewlineT)
 {
-    if (!keepNewlineT) {
+    if (!dontIgnoreNewlineT) {
         for (size_t i = currentTokenIdx; i < tokens.size(); ++i) {
             if (!isNewlineT(tokens[i])) {
                 currentTokenIdx = i + 1;
@@ -876,40 +911,38 @@ gcnToken AnnaParser::eatToken(bool keepNewlineT)
     }
 }
 
-gcnToken AnnaParser::eatToken(Tokens kind, const char *expected, bool keepNewlineT)
+gcnToken AnnaParser::eatToken(Tokens kind, const char *expected, const char *caller, bool dontIgnoreNewlineT)
 {
-    pushTokenStatus();
+    pushParserStatus();
 
-    gcnToken tok = eatToken(keepNewlineT);
+    gcnToken tok = eatToken(dontIgnoreNewlineT);
 
     int row = tok->row();
     int col = tok->col();
     int width = tok->width();
     if (tok->token() != kind) {
-        log_print_pos(row, col, _filename);
+        revertParserStatus();
+
+        log_print_pos(row, col, _filename, currentErrorStream());
         if (expected) {
-            std::fprintf(__log_out, "Invalid token `");
-            std::fputs(tok->text()->c_str(), __log_out);
-            std::fprintf(__log_out, "', expected %s\n", expected);
+            currentErrorStream() << "Invalid token `" << tok->text()->c_str()
+                                 << "', expected " << expected << " in " << caller << "\n";
         } else {
-            std::fprintf(__log_out, "Invalid token `");
-            std::fputs(tok->text()->c_str(), __log_out);
-            std::fprintf(__log_out, "'\n");
+            currentErrorStream() << "Invalid token `" << tok->text()->c_str() << "'\n";
         }
-        log_print_row(row);
-        log_print_indicators(col, width);
-        revertTokenStatus();
+        log_print_row(row, currentErrorStream());
+        log_print_indicators(col, width, currentErrorStream());
         return gcnToken();
     }
 
-    popTokenStatus();
+    popParserStatus();
     return tok;
 }
 
-gcnToken AnnaParser::peekToken(int ahead, bool keepNewlineT)
+gcnToken AnnaParser::peekToken(int ahead, bool dontIgnoreNewlineT)
 {
     for (unsigned int i = ahead + currentTokenIdx; i < tokens.size(); ++i) {
-        if (keepNewlineT)
+        if (dontIgnoreNewlineT)
             return tokens.at(i);
 
         if (!isNewlineT(tokens[i]))

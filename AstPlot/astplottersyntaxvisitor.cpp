@@ -30,6 +30,32 @@ ASTPlotterSyntaxVisitor::ASTPlotterSyntaxVisitor()
 {
 }
 
+// Quick & dirty
+std::string ASTPlotterSyntaxVisitor::escapeGraphviz(const std::string &origin)
+{
+    std::string escaped;
+
+
+    for (auto it = origin.begin(); it != origin.end(); ++it) {
+        switch (*it) {
+            case '\\':
+                escaped.append("\\\\");
+                break;
+            case '\n':
+                escaped.append("\\\\n");
+                break;
+            case '"':
+                escaped.append("\\\"");
+                break;
+            default:
+                escaped.push_back(*it);
+                break;
+        }
+    }
+
+    return escaped;
+}
+
 void ASTPlotterSyntaxVisitor::generateGraph(const std::string &dotFileName)
 {
     std::ofstream dotfile(dotFileName);
@@ -38,16 +64,16 @@ void ASTPlotterSyntaxVisitor::generateGraph(const std::string &dotFileName)
 
         switch (node.type) {
             case NodeProperty::Syntax:
-                out << "[label=\"" << node.name << "\" shape=box style=filled fillcolor=yellow]";
+                out << "[label=\"" << node.name
+                    << "\" shape=rect style=\"rounded,filled\" fillcolor=navy fontcolor=white fontname=Courier]";
                 break;
             case NodeProperty::Token:
-                node.description = node.description.compare("\n") ? node.description : "\\n";
-                out << "[label=\"" << node.name << "\n" << node.description
-                    << "\" shape=diamond style=filled fillcolor=lightgreen]";
+                    out << "[label=\"" << escapeGraphviz(node.description)
+                        << "\" shape=rect style=\"rounded,filled\" fillcolor=mediumseagreen fontcolor=white fontname=Courier]";
                 break;
             case NodeProperty::Comment:
-                out << "[label=\"" << node.name << "\n" << node.description
-                    << "\" shape=note style=filled fillcolor=skyblue1]";
+                out << "[label=\"" << node.description
+                    << "\" shape=rect style=\"rounded,filled\" fillcolor=gray35 fontcolor=white fontname=Courier]";
                 break;
             default:
                 break;
@@ -358,14 +384,12 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaFormalParameterListSyntax &node)
 {
     enterSyntaxNode("formal parameter list");
 
-    for (size_t i = 0; i < node.formalParameterList.list.size(); ++i) {
-        auto list = node.formalParameterList.list;
+    auto list = node.formalParameterList.list;
 
-        for (auto couple : list) {
-            couple.node->Accept(*this);
-            if (couple.COMMA)
-                couple.COMMA->Accept(*this);
-        }
+    for (auto couple : list) {
+        couple.node->Accept(*this);
+        if (couple.COMMA)
+            couple.COMMA->Accept(*this);
     }
 
     exitNode();
@@ -423,7 +447,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaVariableDeclarationStatementSyntax &node
 
 void ASTPlotterSyntaxVisitor::Visit(AnnaImportDirectiveSyntax &node)
 {
-    enterSyntaxNode("import");
+    enterSyntaxNode("import directive");
 
     node.IMPORT->Accept(*this);
     node.IDENTIFIER->Accept(*this);
