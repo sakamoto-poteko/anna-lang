@@ -1,6 +1,16 @@
 # Anna Language
 
-__Anna language (annalang)__ is an experimental programming language designed to ~~_flirt with high school girl_~~.
+__Anna language (annalang)__ is an experimental programming language designed for ~~_flirting with high school girl_~~.
+
+## Requirements
+- Parser
+  - lex
+  - C++11 compiler
+- AstPlot
+  - Boost Graph Library (lightweight, only headers)
+  - C++14 compiler with generic lambda argument. (Minimum gcc 4.9 and VS 2015)
+  - Graphviz if you want to convert dot output to graph
+
 
 ## Modules
 
@@ -24,7 +34,7 @@ def @nna1(a`8, a`9, a`10)
 {
     var 50USD   = 6.33          -_- This is a special case for ``var ana'' >_<
     var 500USD  = 4             -_- This is a special case for ``var anna'' >_<
-    var annna   = 59.663        -_- simicolon is not necessary >_<
+    var annna   = 59.663        -_- Semicolon is not necessary >_<
     var a`4     = true;
     var annnnna = "ann aaannnnaa nannaanaa!";
     -_-var bnnnnnnb = "dummy";>_<
