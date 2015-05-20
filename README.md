@@ -1,6 +1,6 @@
 # Anna Language
 
-__Anna language (annalang)__ is an experimental programming language designed flirt with high school girl.
+__Anna language (annalang)__ is an experimental programming language designed to ~~_flirt with high school girl_~~.
 
 ## Modules
 
