@@ -32,18 +32,20 @@
 
 int main()
 {
-    FILE *f = std::fopen("/home/afa/sample.anna", "r");
+    FILE *f = std::fopen("/home/afa/anna-lang/demo/sample.anna", "r");
 
     AnnaParser parser(f, "sample.anna");
     gcnCompilationUnit root = parser.parse();
     parser.printErrors();
 
-    if (!root)
+    if (!root) {
         std::printf("parse failed\n");
+        return 1;
+    }
 
     ASTPlotterSyntaxVisitor visitor;
     visitor.Visit(*root);
-    visitor.generateGraph("graph.dot");
+    visitor.generateGraph("/home/afa/anna-lang/demo/sample.dot");
 
     return 0;
 }

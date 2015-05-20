@@ -96,7 +96,7 @@ gcnCompilationUnit AnnaParser::parseCompilationUnit()
     std::vector<gcnVariableDeclarationStatement> variableDeclarations;
     std::vector<gcnFunctionDefinition> functionDefinitions;
 
-    while (1) {
+    while (peekToken()->token() == IMPORT || peekToken()->token() == VAR || peekToken()->token() == DEF) {
         if (peekToken()->token() == IMPORT) {
             gcnImportDirective import = parseImportDirective();
             if (import) {
@@ -120,16 +120,15 @@ gcnCompilationUnit AnnaParser::parseCompilationUnit()
                 continue;
             }
         }
+    }
 
-        if (peekToken()->token() == END) {
-            if (imports.empty() && variableDeclarations.empty() && functionDefinitions.empty()) {
-                revertParserStatus();
-                return gcnCompilationUnit();
-            } else {
-                popParserStatus();
-                return std::make_shared<AnnaCompilationUnitSyntax>(imports, variableDeclarations, functionDefinitions);
-            }
-        }
+    if (peekToken()->token() == END && (!imports.empty() || !variableDeclarations.empty() || !functionDefinitions.empty())) {
+        popParserStatus();
+        return std::make_shared<AnnaCompilationUnitSyntax>(imports, variableDeclarations, functionDefinitions);
+    } else {
+        // TODO: add error output here: expected declaration ... EOF here but got ...
+        revertParserStatus();
+        return gcnCompilationUnit();
     }
 }
 
