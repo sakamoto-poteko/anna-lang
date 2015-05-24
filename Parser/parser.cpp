@@ -31,12 +31,15 @@ AnnaParser::AnnaParser(FILE *in, const std::string &fileName)
 {
     lexer_init(in, fileName);
     _filename = fileName;
+    errorStreams.push(std::make_shared<std::stringstream>());
+
 }
 
 AnnaParser::AnnaParser(char *text, size_t len, const std::string &fileName)
 {
     lexer_init(text, len, fileName);
     _filename = fileName;
+    errorStreams.push(std::make_shared<std::stringstream>());
 }
 
 AnnaParser::~AnnaParser()

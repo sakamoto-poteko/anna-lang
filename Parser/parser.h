@@ -110,32 +110,30 @@ protected:
 
     // Parser status stacks
     std::stack<unsigned int> tokenIdxStack;
-    std::stack<std::shared_ptr<std::stringstream>> pathErrorStack;
     std::stack<std::shared_ptr<std::stringstream>> errorStreams;
 
     std::stringstream &currentErrorStream()
     {
-        return *pathErrorStack.top();
+        return *errorStreams.top();
     }
 
     void pushParserStatus()
     {
-        pathErrorStack.push(std::make_shared<std::stringstream>());
         errorStreams.push(std::make_shared<std::stringstream>());
         tokenIdxStack.push(currentTokenIdx);
     }
 
     void popParserStatus()
     {
-        pathErrorStack.pop();
         errorStreams.pop();
         tokenIdxStack.pop();
     }
 
     void revertParserStatus()
     {
-        *errorStreams.top() << pathErrorStack.top()->str();
-        pathErrorStack.pop();
+        std::string err = errorStreams.top()->str();
+        errorStreams.pop();
+        *errorStreams.top() << err;
         revertToken(tokenIdxStack.top());
         tokenIdxStack.pop();
     }

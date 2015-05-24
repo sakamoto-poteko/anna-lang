@@ -3,7 +3,8 @@
 __Anna language (annalang)__ is an experimental programming language designed for ~~_flirting with high school girl_~~.
 
 ## Prequesities
-
+- Build System
+  - QMake
 - Parser
   - lex
   - C++11 compiler
@@ -98,3 +99,6 @@ See https://github.com/sakamoto-poteko/anna-lang/blob/master/demo/sample.svg for
    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
+
+## Additional Licenses
+See https://github.com/sakamoto-poteko/anna-lang/blob/master/additional_licenses.
