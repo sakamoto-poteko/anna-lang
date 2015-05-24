@@ -65,7 +65,7 @@ void ASTPlotterSyntaxVisitor::generateGraph(const std::string &dotFileName)
         switch (node.type) {
             case NodeProperty::Syntax:
                 out << "[label=\"" << node.name
-                    << "\" shape=rect style=\"rounded,filled\" fillcolor=navy fontcolor=white fontname=Courier]";
+                    << "\" shape=rect style=\"rounded,filled\" fillcolor=navy fontcolor=white fontname=Helvetica]";
                 break;
             case NodeProperty::Token:
                 out << "[label=\"" << escapeGraphviz(node.description)

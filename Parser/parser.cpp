@@ -192,25 +192,49 @@ gcnExpression AnnaParser::parseExpression()
     return gcnExpression();
 }
 
-gcnBinaryOperationExpression AnnaParser::parseBinaryOperationExpression()
+gcnBinaryOperationExpression AnnaParser::parseBinaryOperationExpression(int min_precedence)
 {
     pushParserStatus();
 
-    gcnUnaryExpression left;
+    gcnBinaryOperationExpression result;
+
+    gcnExpression left;
     gcnBinaryOperator op;
     gcnExpression right;
 
     left = parseUnaryExpression();
     if (!left) goto not_binary_op_expr;
 
-    op = parseBinaryOperator();
-    if (!op)  goto not_binary_op_expr;
+    while (true) {
+        pushParserStatus();
+        op = parseBinaryOperator();
+        if (!op) {
+            revertParserStatus();
+            break;
+        }
 
-    right = parseExpression();
-    if (!right) goto not_binary_op_expr;
+        int prec = getPrecedence(op->binOp->token());
+        bool leftAssoc = isLeftAssociative(op->binOp->token());
+        int next_min_prec = leftAssoc ? prec + 1 : prec;
 
-    popParserStatus();
-    return std::make_shared<AnnaBinaryOperationExpressionSyntax>(left, op, right);
+        if (prec < min_precedence) {
+            revertParserStatus();
+            break;
+        }
+        popParserStatus();
+
+        right = parseBinaryOperationExpression(next_min_prec);
+        if (!right)
+            right = parseUnaryExpression();
+        if (!right) goto not_binary_op_expr;
+
+        result = std::make_shared<AnnaBinaryOperationExpressionSyntax>(result ? result : left, op, right);
+    }
+    if (result) {
+        popParserStatus();
+        return result;
+    } else
+        goto not_binary_op_expr;
 
 not_binary_op_expr:
     revertParserStatus();
@@ -880,6 +904,73 @@ gcnReturnStatement AnnaParser::parseReturnStatement()
 not_return_statement:
     revertParserStatus();
     return gcnReturnStatement();
+}
+
+int AnnaParser::getPrecedence(Tokens op)
+{
+    switch (op) {
+        case OROR:
+            return 1;
+
+        case ANDAND:
+            return 2;
+
+        case OR:
+            return 3;
+
+        case XOR:
+            return 4;
+
+        case AND:
+            return 5;
+
+        case EE:
+        case NE:
+            return 6;
+
+        case GE:
+        case LE:
+        case GT:
+        case LT:
+            return 7;
+
+        case ADD:
+        case SUB:
+            return 8;
+
+        case MUL:
+        case DIV:
+        case MOD:
+            return 9;
+
+        default:
+            throw;
+    }
+}
+
+bool AnnaParser::isLeftAssociative(Tokens op)
+{
+    switch (op) {
+        case OROR:
+        case ANDAND:
+        case OR:
+        case XOR:
+        case AND:
+        case EE:
+        case NE:
+        case GE:
+        case LE:
+        case GT:
+        case LT:
+        case ADD:
+        case SUB:
+        case MUL:
+        case DIV:
+        case MOD:
+            return true;
+        default:
+            throw;
+    }
 }
 
 

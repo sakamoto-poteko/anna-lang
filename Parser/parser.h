@@ -62,7 +62,7 @@ protected:
     gcnImportDirective parseImportDirective();
     gcnFunctionIdentifier parseFunctionIdentifier();
     gcnExpression parseExpression();
-    gcnBinaryOperationExpression parseBinaryOperationExpression();
+    gcnBinaryOperationExpression parseBinaryOperationExpression(int min_precedence = 0);
     gcnUnaryExpression parseUnaryExpression();
     gcnPrimaryExpression parsePrimaryExpression();
     gcnSimpleName parseSimpleName();
@@ -89,6 +89,9 @@ protected:
     gcnWhileStatement parseWhileStatement();
     gcnAssignment parseAssignment();
     gcnReturnStatement parseReturnStatement();
+
+    int getPrecedence(Tokens op);
+    bool isLeftAssociative(Tokens op);
 
 
     std::vector<gcnToken> tokens;

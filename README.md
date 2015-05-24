@@ -2,14 +2,15 @@
 
 __Anna language (annalang)__ is an experimental programming language designed for ~~_flirting with high school girl_~~.
 
-## Requirements
+## Prequesities
+
 - Parser
   - lex
   - C++11 compiler
 - AstPlot
-  - Boost Graph Library (lightweight, only headers)
-  - C++14 compiler with generic lambda argument. (Minimum gcc 4.9 and VS 2015)
-  - Graphviz if you want to convert dot output to graph
+  - Boost Graph Library
+  - C++14 compiler with generic lambda argument support (Minimum GCC 4.9 and VS 2015)
+  - Graphviz for converting dot file to image
 
 
 ## Modules

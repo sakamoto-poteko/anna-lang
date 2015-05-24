@@ -225,13 +225,13 @@ protected:
 class AnnaBinaryOperationExpressionSyntax : public AnnaExpressionSyntax
 {
 public:
-    AnnaBinaryOperationExpressionSyntax(gcnUnaryExpression l, gcnBinaryOperator o,
+    AnnaBinaryOperationExpressionSyntax(gcnExpression l, gcnBinaryOperator o,
                                         gcnExpression r) :
         left(l), op(o), right(r) {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
 //protected:
-    gcnUnaryExpression left;
+    gcnExpression left;
     gcnBinaryOperator op;
     gcnExpression right;
 };

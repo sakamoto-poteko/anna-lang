@@ -24,7 +24,7 @@ eos = T, {T};
 
 (* This rule is not accurate. Compilation unit may composed of any number of 
    import directives, variable declaration statement or function definitions in any order.
-   This rule is just for the sake ofconvenience *)
+   This rule is just for the sake of convenience *)
 compilation unit = {import directive}, {variable declaration statement}, {function definition}; 
 import directive = IMPORT, IDENTIFIER, eos;
 
@@ -32,13 +32,13 @@ function identifier = USER_FUNCTION_IDENTIFIER | IDENTIFIER;
 
 (* Expression *)
 expression = binary expression | unary expression | assignment;
-binary expression = unary expression, binary operator, expression;
+binary expression = (binary expression | unary expression), binary operator, (binary expression | unary expression);
 unary expression = primary expression;
 primary expression = literal| parenthesized expression | invocation expression | simple name ;
 simple name = VARIABLE_IDENTIFIER;
 literal = STRING | REAL | INTEGER | BOOLEAN;
 parenthesized expression = '(', expression, ')';
-binary operator = AND | OR | XOR | GT | LT | ADD | SUB | MUL | DIV | MOD | GE | LE | EE | NE;
+binary operator = AND | OR | ANDAND | OROR | XOR | GT | LT | ADD | SUB | MUL | DIV | MOD | GE | LE | EE | NE;
 invocation expression = function identifier, ([argument list] | '(', [argument list], ')');
 argument list = expression, {',', expression};
 
