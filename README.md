@@ -8,18 +8,19 @@ __Anna language (annalang)__ is an experimental programming language designed fo
 - Parser
   - lex
   - C++11 compiler
-- AstPlot
+- SyntaxPlot
   - Boost Graph Library
   - C++14 compiler with generic lambda argument support (Minimum GCC 4.9 and VS 2015)
   - Graphviz for converting dot file to image
-
+- Symbol
+  - C++11 compiler
 
 ## Modules
 
 - Parser: Tokenizer (lex) and parser (hand-written recursive descent parser) of annalang
-- AstPlot: Graph generator for Abstract Syntax Tree
+- SyntaxPlot: Graph generator for Syntax Tree
 - ParserTest: Parser driver used in development. Can be treated as a minimal example
-
+- Symbol: Import and export symbol, generate symbol tree for Syntax Tree
 
 ## Language Demo
 ```
@@ -73,8 +74,8 @@ def @bnnb(a`1, a`2, a`3, a`4)
 }
 ```
 
-## AST Demo
-See https://github.com/sakamoto-poteko/anna-lang/blob/master/demo/sample.svg for directed graph of AST.
+## Syntax Tree Demo
+See https://github.com/sakamoto-poteko/anna-lang/blob/master/demo/sample.svg for directed graph of Syntax Tree.
 
 ## License
 ```

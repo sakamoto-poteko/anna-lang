@@ -102,8 +102,10 @@ class AnnaCompilationUnitSyntax : public AnnaSyntax
 public:
     AnnaCompilationUnitSyntax(const std::vector<gcnImportDirective> &imp,
                               const std::vector<gcnVariableDeclarationStatement> &vard,
-                              const std::vector<gcnFunctionDefinition> &funcd) :
-        importDirectives(imp), variableDeclarationStatements(vard), functionDefinitions(funcd)
+                              const std::vector<gcnFunctionDefinition> &funcd,
+                              gcString name) :
+        importDirectives(imp), variableDeclarationStatements(vard), functionDefinitions(funcd),
+        compilationUnitName(name)
     {}
     void Accept(AnnaSyntaxVisitor &visitor);
 
@@ -111,6 +113,7 @@ public:
     std::vector<gcnImportDirective> importDirectives;
     std::vector<gcnVariableDeclarationStatement> variableDeclarationStatements;
     std::vector<gcnFunctionDefinition> functionDefinitions;
+    gcString compilationUnitName;
 };
 
 class AnnaImportDirectiveSyntax : public AnnaSyntax

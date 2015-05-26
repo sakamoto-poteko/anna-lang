@@ -23,29 +23,22 @@
  ***************************************************************************/
 
 
-#include <iostream>
-#include <cstdio>
+#ifndef SYMBOL_GLOBAL_H
+#define SYMBOL_GLOBAL_H
 
-#include <parser.h>
-#include "astplottersyntaxvisitor.h"
+#ifdef _WIN32
+#if defined(SYMBOL_LIBRARY)
+#  define SYMBOLSHARED_EXPORT __declspec(dllexport)
+#else
+#  define SYMBOLSHARED_EXPORT __declspec(dllimport)
+#endif
+#else
+#define PARSERSHARED_EXPORT
+#endif
+
+#include <string>
+#include <vector>
+#include <memory>
 
 
-int main()
-{
-    FILE *f = std::fopen("/home/afa/anna-lang/demo/sample.anna", "r");
-
-    AnnaParser parser(f, "sample.anna");
-    gcnCompilationUnit root = parser.parse();
-    parser.printErrors();
-
-    if (!root) {
-        std::printf("parse failed\n");
-        return 1;
-    }
-
-    ASTPlotterSyntaxVisitor visitor;
-    visitor.Visit(*root);
-    visitor.generateGraph("/home/afa/anna-lang/demo/sample.dot");
-
-    return 0;
-}
+#endif // SYMBOL_GLOBAL_H

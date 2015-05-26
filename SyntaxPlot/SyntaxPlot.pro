@@ -6,7 +6,7 @@ CONFIG -= qt
 QMAKE_CXXFLAGS += -std=c++1y
 
 SOURCES += main.cpp \
-    astplottersyntaxvisitor.cpp
+    syntaxplottersyntaxvisitor.cpp
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../Parser/release/ -lParser
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../Parser/debug/ -lParser
@@ -16,4 +16,4 @@ INCLUDEPATH += $$PWD/../Parser
 DEPENDPATH += $$PWD/../Parser
 
 HEADERS += \
-    astplottersyntaxvisitor.h
+    syntaxplottersyntaxvisitor.h

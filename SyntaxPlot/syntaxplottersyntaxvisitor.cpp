@@ -23,15 +23,15 @@
  ***************************************************************************/
 
 
-#include "astplottersyntaxvisitor.h"
+#include "syntaxplottersyntaxvisitor.h"
 #include "annasyntax.h"
 
-ASTPlotterSyntaxVisitor::ASTPlotterSyntaxVisitor()
+SyntaxPlotterSyntaxVisitor::SyntaxPlotterSyntaxVisitor()
 {
 }
 
 // Quick & dirty
-std::string ASTPlotterSyntaxVisitor::escapeGraphviz(const std::string &origin)
+std::string SyntaxPlotterSyntaxVisitor::escapeGraphviz(const std::string &origin)
 {
     std::string escaped;
 
@@ -56,9 +56,9 @@ std::string ASTPlotterSyntaxVisitor::escapeGraphviz(const std::string &origin)
     return escaped;
 }
 
-void ASTPlotterSyntaxVisitor::generateGraph(const std::string &dotFileName)
+std::string SyntaxPlotterSyntaxVisitor::generateGraph()
 {
-    std::ofstream dotfile(dotFileName);
+    std::stringstream dotfile;
     boost::write_graphviz(dotfile, graph, [this](std::ostream &out, auto &v) {
         NodeProperty &node = graph[v];
 
@@ -79,12 +79,13 @@ void ASTPlotterSyntaxVisitor::generateGraph(const std::string &dotFileName)
                 break;
         }
     });
+    return dotfile.str();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaCompilationUnitSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaCompilationUnitSyntax &node)
 {
     // Root
-    ASTGraphDescriptor g = graph.add_vertex();
+    SyntaxGraphDescriptor g = graph.add_vertex();
     graph[g].type = NodeProperty::Syntax;
     graph[g].name = "compilation unit";
     nodes.push(g);
@@ -101,7 +102,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaCompilationUnitSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaFunctionBodySyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaFunctionBodySyntax &node)
 {
     enterSyntaxNode("function body");
 
@@ -110,13 +111,13 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaFunctionBodySyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaExpressionSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaExpressionSyntax &node)
 {
     (void)node;
     throw;  // Abstract class
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaBinaryOperationExpressionSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaBinaryOperationExpressionSyntax &node)
 {
     enterSyntaxNode("binary operation expression");
 
@@ -127,19 +128,19 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaBinaryOperationExpressionSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaUnaryExpressionSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaUnaryExpressionSyntax &node)
 {
     (void)node;
     throw;  // Abstract class
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaPrimaryExpressionSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaPrimaryExpressionSyntax &node)
 {
     (void)node;
     throw; // Abstract class
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaSimpleNameSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaSimpleNameSyntax &node)
 {
     enterSyntaxNode("simple name");
 
@@ -148,7 +149,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaSimpleNameSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaLiteralSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaLiteralSyntax &node)
 {
     enterSyntaxNode("literal");
 
@@ -157,7 +158,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaLiteralSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaParenthesizedExpressionSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaParenthesizedExpressionSyntax &node)
 {
     enterSyntaxNode("parenthesized expression");
 
@@ -168,7 +169,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaParenthesizedExpressionSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaBinaryOperatorSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaBinaryOperatorSyntax &node)
 {
     enterSyntaxNode("binary operator");
 
@@ -177,7 +178,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaBinaryOperatorSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaInvocationExpressionSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaInvocationExpressionSyntax &node)
 {
     enterSyntaxNode("invocation expression");
 
@@ -195,7 +196,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaInvocationExpressionSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaArgumentListSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaArgumentListSyntax &node)
 {
     enterSyntaxNode("argument list");
 
@@ -209,7 +210,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaArgumentListSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaBlockSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaBlockSyntax &node)
 {
     enterSyntaxNode("block");
 
@@ -221,19 +222,19 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaBlockSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaStatementSyntax &node)
 {
     (void)node;
     throw; // Abstract class
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaEmbeddedStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaEmbeddedStatementSyntax &node)
 {
     (void)node;
     throw; // Abstract class
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaEmptyStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaEmptyStatementSyntax &node)
 {
     enterSyntaxNode("empty statement");
 
@@ -243,7 +244,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaEmptyStatementSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaExpressionStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaExpressionStatementSyntax &node)
 {
     enterSyntaxNode("expression statement");
 
@@ -253,43 +254,43 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaExpressionStatementSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(StringToken &node)
+void SyntaxPlotterSyntaxVisitor::Visit(StringToken &node)
 {
     createTokenNode("String", node.row(), node.col(), *node.string(), node.trailingComments());
 }
 
-void ASTPlotterSyntaxVisitor::Visit(LiteralToken &node)
+void SyntaxPlotterSyntaxVisitor::Visit(LiteralToken &node)
 {
     (void)node;
     throw; // Abstract class
 }
 
-void ASTPlotterSyntaxVisitor::Visit(BooleanToken &node)
+void SyntaxPlotterSyntaxVisitor::Visit(BooleanToken &node)
 {
     createTokenNode("Boolean", node.row(), node.col(), node.boolean() ? "true" : "false", node.trailingComments());
 }
 
-void ASTPlotterSyntaxVisitor::Visit(IntegerToken &node)
+void SyntaxPlotterSyntaxVisitor::Visit(IntegerToken &node)
 {
     createTokenNode("Integer", node.row(), node.col(), std::to_string(node.integer()), node.trailingComments());
 }
 
-void ASTPlotterSyntaxVisitor::Visit(RealToken &node)
+void SyntaxPlotterSyntaxVisitor::Visit(RealToken &node)
 {
     createTokenNode("Real", node.row(), node.col(), std::to_string(node.real()), node.trailingComments());
 }
 
-void ASTPlotterSyntaxVisitor::Visit(IdentifierToken &node)
+void SyntaxPlotterSyntaxVisitor::Visit(IdentifierToken &node)
 {
     createTokenNode("Identifier", node.row(), node.col(), *node.identifier(), node.trailingComments());
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaToken &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaToken &node)
 {
     createTokenNode("Token", node.row(), node.col(), *node.text(), node.trailingComments());
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaEOSSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaEOSSyntax &node)
 {
     enterSyntaxNode("eos");
 
@@ -299,7 +300,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaEOSSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaReturnStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaReturnStatementSyntax &node)
 {
     enterSyntaxNode("return statement");
 
@@ -311,7 +312,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaReturnStatementSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaAssignmentSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaAssignmentSyntax &node)
 {
     enterSyntaxNode("assignment");
 
@@ -322,7 +323,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaAssignmentSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaWhileStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaWhileStatementSyntax &node)
 {
     enterSyntaxNode("while statement");
 
@@ -335,13 +336,13 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaWhileStatementSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaIterationStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaIterationStatementSyntax &node)
 {
     (void)node;
     throw; // Abstract class
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaIfStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaIfStatementSyntax &node)
 {
     enterSyntaxNode("if statement");
 
@@ -359,19 +360,19 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaIfStatementSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaSelectionStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaSelectionStatementSyntax &node)
 {
     (void)node;
     throw; // Abstract class
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaStatementExpressionSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaStatementExpressionSyntax &node)
 {
     (void)node;
     throw; // Abstract class
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaFormalParameterSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaFormalParameterSyntax &node)
 {
     enterSyntaxNode("formal parameter");
 
@@ -380,7 +381,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaFormalParameterSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaFormalParameterListSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaFormalParameterListSyntax &node)
 {
     enterSyntaxNode("formal parameter list");
 
@@ -395,7 +396,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaFormalParameterListSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaFunctionHeaderSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaFunctionHeaderSyntax &node)
 {
     enterSyntaxNode("function header");
 
@@ -410,7 +411,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaFunctionHeaderSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaFunctionDefinitionSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaFunctionDefinitionSyntax &node)
 {
     enterSyntaxNode("function definition");
 
@@ -420,7 +421,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaFunctionDefinitionSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaFunctionIdentifierSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaFunctionIdentifierSyntax &node)
 {
     enterSyntaxNode("function identifier");
 
@@ -429,7 +430,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaFunctionIdentifierSyntax &node)
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaVariableDeclarationStatementSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaVariableDeclarationStatementSyntax &node)
 {
     enterSyntaxNode("variable declaration statement");
 
@@ -445,7 +446,7 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaVariableDeclarationStatementSyntax &node
     exitNode();
 }
 
-void ASTPlotterSyntaxVisitor::Visit(AnnaImportDirectiveSyntax &node)
+void SyntaxPlotterSyntaxVisitor::Visit(AnnaImportDirectiveSyntax &node)
 {
     enterSyntaxNode("import directive");
 
@@ -455,31 +456,4 @@ void ASTPlotterSyntaxVisitor::Visit(AnnaImportDirectiveSyntax &node)
 
     exitNode();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

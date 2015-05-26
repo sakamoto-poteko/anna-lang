@@ -37,8 +37,8 @@
 class AnnaParser
 {
 public:
-    AnnaParser(FILE *in, const std::string &fileName);
-    AnnaParser(char *text, size_t len, const std::string &fileName);
+    AnnaParser(FILE *in, const std::string &fileName, const std::string compilationUnitName);
+    AnnaParser(char *text, size_t len, const std::string &fileName, const std::string compilationUnitName);
     virtual ~AnnaParser();
 
     // FIXME: Change reutrn type
@@ -144,6 +144,7 @@ protected:
 
 
     std::string _filename;
+    gcString _compilationUnitName;
     bool isPossiblePrimaryExpression();
 };
 

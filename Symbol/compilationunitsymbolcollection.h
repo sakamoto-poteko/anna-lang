@@ -23,30 +23,28 @@
  ***************************************************************************/
 
 
-#include <stdio.h>
-#include "parser.h"
-#include "exportedsymbolvisitor.h"
+#ifndef COMPILATIONUNITSYMBOLCOLLECTION_H
+#define COMPILATIONUNITSYMBOLCOLLECTION_H
 
+#include "symbol.h"
 
-int main()
+class CompilationUnitSymbolCollection
 {
-    std::string path("/home/afa/anna-lang/demo/sample.anna");
-    FILE *f = fopen(path.c_str(), "r");
+public:
+    CompilationUnitSymbolCollection();
+    virtual ~CompilationUnitSymbolCollection();
 
-    std::string compilationUnitName(path.substr(path.find_last_of("/\\") + 1));
+    std::vector<gcVariableDeclarationSymbol> globals;
+    std::vector<gcFunctionDefinitionSymbol> functions;
+    std::shared_ptr<std::string> compilationUnitName;
 
-    AnnaParser parser(f, "sample.anna", compilationUnitName);
-    gcnCompilationUnit tree = parser.parse();
-    ExportedSymbolVisitor expSyms;
-    tree->Accept(expSyms);
+    virtual bool exportSymbols(const std::string &filename);
+    virtual std::string exportSymbols();
 
-    expSyms.symbols().exportSymbols("/home/afa/anna-lang/demo/sample.annameta");
+    static CompilationUnitSymbolCollection importSymbols(const std::string &metadata);
+    static CompilationUnitSymbolCollection importSymbolsFromFile(const std::string &filename);
 
-    CompilationUnitSymbolCollection coll
-            = CompilationUnitSymbolCollection::importSymbolsFromFile("/home/afa/anna-lang/demo/sample.annameta");
+    virtual void print();
+};
 
-    coll.print();
-
-    return 0;
-}
-
+#endif // COMPILATIONUNITSYMBOLCOLLECTION_H

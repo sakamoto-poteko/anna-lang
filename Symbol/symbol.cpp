@@ -23,30 +23,6 @@
  ***************************************************************************/
 
 
-#include <stdio.h>
-#include "parser.h"
-#include "exportedsymbolvisitor.h"
+#include "symbol.h"
 
-
-int main()
-{
-    std::string path("/home/afa/anna-lang/demo/sample.anna");
-    FILE *f = fopen(path.c_str(), "r");
-
-    std::string compilationUnitName(path.substr(path.find_last_of("/\\") + 1));
-
-    AnnaParser parser(f, "sample.anna", compilationUnitName);
-    gcnCompilationUnit tree = parser.parse();
-    ExportedSymbolVisitor expSyms;
-    tree->Accept(expSyms);
-
-    expSyms.symbols().exportSymbols("/home/afa/anna-lang/demo/sample.annameta");
-
-    CompilationUnitSymbolCollection coll
-            = CompilationUnitSymbolCollection::importSymbolsFromFile("/home/afa/anna-lang/demo/sample.annameta");
-
-    coll.print();
-
-    return 0;
-}
 

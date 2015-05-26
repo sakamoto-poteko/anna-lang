@@ -27,19 +27,20 @@
 #include "lex_helper.h"
 #include "parser.h"
 
-AnnaParser::AnnaParser(FILE *in, const std::string &fileName)
+AnnaParser::AnnaParser(FILE *in, const std::string &fileName, const std::string compilationUnitName)
 {
     lexer_init(in, fileName);
     _filename = fileName;
     errorStreams.push(std::make_shared<std::stringstream>());
-
+    _compilationUnitName = std::make_shared<std::string>(compilationUnitName);
 }
 
-AnnaParser::AnnaParser(char *text, size_t len, const std::string &fileName)
+AnnaParser::AnnaParser(char *text, size_t len, const std::string &fileName, const std::string compilationUnitName)
 {
     lexer_init(text, len, fileName);
     _filename = fileName;
     errorStreams.push(std::make_shared<std::stringstream>());
+    _compilationUnitName = std::make_shared<std::string>(compilationUnitName);
 }
 
 AnnaParser::~AnnaParser()
@@ -127,7 +128,7 @@ gcnCompilationUnit AnnaParser::parseCompilationUnit()
 
     if (peekToken()->token() == END && (!imports.empty() || !variableDeclarations.empty() || !functionDefinitions.empty())) {
         popParserStatus();
-        return std::make_shared<AnnaCompilationUnitSyntax>(imports, variableDeclarations, functionDefinitions);
+        return std::make_shared<AnnaCompilationUnitSyntax>(imports, variableDeclarations, functionDefinitions, _compilationUnitName);
     } else {
         // TODO: add error output here: expected declaration ... EOF here but got ...
         revertParserStatus();

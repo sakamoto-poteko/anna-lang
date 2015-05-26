@@ -59,6 +59,8 @@ std::vector<std::string> &get_lex_source_rows()
 
 %}
 
+%option nounistd
+%option never-interactive
 %option noyywrap
 %x COMS1 COMS2 COMS3
 

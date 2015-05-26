@@ -23,30 +23,44 @@
  ***************************************************************************/
 
 
-#include <stdio.h>
-#include "parser.h"
-#include "exportedsymbolvisitor.h"
+#ifndef SYMBOL_H
+#define SYMBOL_H
 
+#include "symbol_global.h"
 
-int main()
+class Symbol
 {
-    std::string path("/home/afa/anna-lang/demo/sample.anna");
-    FILE *f = fopen(path.c_str(), "r");
+public:
+    std::shared_ptr<std::string> name;
 
-    std::string compilationUnitName(path.substr(path.find_last_of("/\\") + 1));
+protected:
+    Symbol() {}
+};
 
-    AnnaParser parser(f, "sample.anna", compilationUnitName);
-    gcnCompilationUnit tree = parser.parse();
-    ExportedSymbolVisitor expSyms;
-    tree->Accept(expSyms);
 
-    expSyms.symbols().exportSymbols("/home/afa/anna-lang/demo/sample.annameta");
+class VariableDeclarationSymbol;
+class ParameterDeclarationSymbol;
+class FunctionDefinitionSymbol;
+typedef std::shared_ptr<Symbol> gcSymbol;
+typedef std::shared_ptr<FunctionDefinitionSymbol> gcFunctionDefinitionSymbol;
+typedef std::shared_ptr<VariableDeclarationSymbol> gcVariableDeclarationSymbol;
 
-    CompilationUnitSymbolCollection coll
-            = CompilationUnitSymbolCollection::importSymbolsFromFile("/home/afa/anna-lang/demo/sample.annameta");
+class VariableDeclarationSymbol : public Symbol
+{
 
-    coll.print();
+};
 
-    return 0;
-}
+class ParameterDeclarationSymbol : public Symbol
+{
 
+};
+
+class FunctionDefinitionSymbol : public Symbol
+{
+public:
+    int paramsCount;
+};
+
+
+
+#endif // SYMBOL_H
