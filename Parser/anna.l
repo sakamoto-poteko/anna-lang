@@ -37,9 +37,9 @@ void advance_token()
 //    lexerToken.clear(); // moved to tokenize()
     lexerToken.token_row = current_row;
     lexerToken.token_col = current_column;
-    lexerToken.token_leng = annaleng;
-    lexerToken.text = std::make_shared<std::string>(annatext);
-    current_column += annaleng;
+    lexerToken.token_leng = yyleng;
+    lexerToken.text = std::make_shared<std::string>(yytext);
+    current_column += yyleng;
 }
 
 void advance_row()
@@ -108,29 +108,29 @@ std::vector<std::string> &get_lex_source_rows()
 
 "true"                          { advance_token(); lexerToken.boolean = 1; return BOOLEAN; }
 "false"                         { advance_token(); lexerToken.boolean = 0; return BOOLEAN; }
-[0-9]+\.[0-9]*                  { advance_token(); lexerToken.real = atof(annatext);     return REAL;    }
-[0-9]+                          { advance_token(); lexerToken.integer = atoi(annatext);  return INTEGER; }
-\"([^\\\"]|\\.)*\"              { advance_token(); lexerToken.string = std::make_shared<std::string>(annatext); return STRING;}
+[0-9]+\.[0-9]*                  { advance_token(); lexerToken.real = atof(yytext);     return REAL;    }
+[0-9]+                          { advance_token(); lexerToken.integer = atoi(yytext);  return INTEGER; }
+\"([^\\\"]|\\.)*\"              { advance_token(); lexerToken.string = std::make_shared<std::string>(yytext); return STRING;}
 
-"50USD"                         { advance_token(); lexerToken.identifier = std::make_shared<std::string>(annatext); return VARIABLE_IDENTIFIER; }
-"500USD"                        { advance_token(); lexerToken.identifier = std::make_shared<std::string>(annatext); return VARIABLE_IDENTIFIER; }
-a`[0-9]+                        { advance_token(); lexerToken.identifier = std::make_shared<std::string>(annatext); return VARIABLE_IDENTIFIER; }
-an+a                            { advance_token(); lexerToken.identifier = std::make_shared<std::string>(annatext); return VARIABLE_IDENTIFIER; }
-@[A-Za-z][A-Za-z0-9_]*          { advance_token(); lexerToken.identifier = std::make_shared<std::string>(annatext); return USER_FUNCTION_IDENTIFIER; }
-[A-Za-z_][A-Za-z0-9_]*          { advance_token(); lexerToken.identifier = std::make_shared<std::string>(annatext); return IDENTIFIER;          }
+"50USD"                         { advance_token(); lexerToken.identifier = std::make_shared<std::string>(yytext); return VARIABLE_IDENTIFIER; }
+"500USD"                        { advance_token(); lexerToken.identifier = std::make_shared<std::string>(yytext); return VARIABLE_IDENTIFIER; }
+a`[0-9]+                        { advance_token(); lexerToken.identifier = std::make_shared<std::string>(yytext); return VARIABLE_IDENTIFIER; }
+an+a                            { advance_token(); lexerToken.identifier = std::make_shared<std::string>(yytext); return VARIABLE_IDENTIFIER; }
+@[A-Za-z][A-Za-z0-9_]*          { advance_token(); lexerToken.identifier = std::make_shared<std::string>(yytext); return USER_FUNCTION_IDENTIFIER; }
+[A-Za-z_][A-Za-z0-9_]*          { advance_token(); lexerToken.identifier = std::make_shared<std::string>(yytext); return IDENTIFIER;          }
 "\n"                            { advance_row(); return T;      }
 [ \t\r]+                        { advance_token(); }
 .                               { advance_token(); return ERROR; }
 
-"-_-"                           { advance_token(); COMS_str.clear(); COMS_str.append(annatext); BEGIN(COMS1);  }
-<COMS1>">"                      { advance_token(); COMS_str.append(annatext); BEGIN(COMS2);  }
-<COMS1>"\n"                     { advance_row();   COMS_str.append(annatext); }
-<COMS1>[^>\n]                   { advance_token(); COMS_str.append(annatext); }
-<COMS2>"_"                      { advance_token(); COMS_str.append(annatext); BEGIN(COMS3);  }
-<COMS2>"\n"                     { advance_row();   COMS_str.append(annatext); BEGIN(COMS1);  }
-<COMS2>[^_\n]                   { advance_token(); COMS_str.append(annatext); BEGIN(COMS1);  }
-<COMS3>"<"                      { advance_token(); COMS_str.append(annatext); lexerToken.trailing_comments.push_back(COMS_str); BEGIN(INITIAL); }
-<COMS3>"\n"                     { advance_token(); COMS_str.append(annatext); BEGIN(COMS1);  }
-<COMS3>[^<\n]                   { advance_row();   COMS_str.append(annatext); BEGIN(COMS1);  }
+"-_-"                           { advance_token(); COMS_str.clear(); COMS_str.append(yytext); BEGIN(COMS1);  }
+<COMS1>">"                      { advance_token(); COMS_str.append(yytext); BEGIN(COMS2);  }
+<COMS1>"\n"                     { advance_row();   COMS_str.append(yytext); }
+<COMS1>[^>\n]                   { advance_token(); COMS_str.append(yytext); }
+<COMS2>"_"                      { advance_token(); COMS_str.append(yytext); BEGIN(COMS3);  }
+<COMS2>"\n"                     { advance_row();   COMS_str.append(yytext); BEGIN(COMS1);  }
+<COMS2>[^_\n]                   { advance_token(); COMS_str.append(yytext); BEGIN(COMS1);  }
+<COMS3>"<"                      { advance_token(); COMS_str.append(yytext); lexerToken.trailing_comments.push_back(COMS_str); BEGIN(INITIAL); }
+<COMS3>"\n"                     { advance_token(); COMS_str.append(yytext); BEGIN(COMS1);  }
+<COMS3>[^<\n]                   { advance_row();   COMS_str.append(yytext); BEGIN(COMS1);  }
 
 %%
