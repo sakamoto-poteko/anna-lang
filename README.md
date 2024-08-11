@@ -4,16 +4,13 @@ __Anna language (annalang)__ is an experimental programming language designed fo
 
 ## Prequesities
 - Build System
-  - QMake
+  - CMake
+  - C++14 compiler
 - Parser
-  - lex
-  - C++11 compiler
+  - flex
 - SyntaxPlot
   - Boost Graph Library
-  - C++14 compiler with generic lambda argument support (Minimum GCC 4.9 and VS 2015)
   - Graphviz for converting dot file to image
-- Symbol
-  - C++11 compiler
 
 ## Modules
 

@@ -53,7 +53,7 @@ class AnnaSeperatedList
 public:
     AnnaSeperatedList()
     {
-        static_assert(std::is_base_of<AnnaSyntax, class T::element_type>::value, "AnnaSeperatedList takes only AnnaSyntax");
+        static_assert(std::is_base_of<AnnaSyntax, typename T::element_type>::value, "AnnaSeperatedList takes only AnnaSyntax");
     }
 
     void add(T node)

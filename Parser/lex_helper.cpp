@@ -29,8 +29,8 @@
 #include "lex_helper.h"
 #include "parser.h"
 
-extern FILE* annain;
-int annalex();
+extern FILE* yyin;
+int yylex();
 static bool use_temp_file_stream;
 static std::string __lex_filename;
 
@@ -53,7 +53,7 @@ bool lexer_init(FILE* in, const std::string &filename)
     lexer_finalize();
 
     use_temp_file_stream = false;
-    annain = in;
+    yyin = in;
     split_lines(in);
 
     __lex_filename = filename;
@@ -65,10 +65,10 @@ bool lexer_init(char* in, size_t len, const std::string &filename)
     lexer_finalize();
 
     use_temp_file_stream = true;
-    annain = tmpfile();
-    fwrite(in, 1, len, annain);
-    fseek(annain, 0, SEEK_SET);
-    split_lines(annain);
+    yyin = tmpfile();
+    fwrite(in, 1, len, yyin);
+    fseek(yyin, 0, SEEK_SET);
+    split_lines(yyin);
 
     __lex_filename = filename;
     return true;
@@ -76,7 +76,7 @@ bool lexer_init(char* in, size_t len, const std::string &filename)
 
 gcnToken tokenize()
 {
-    int lex_val = annalex();
+    int lex_val = yylex();
 
     auto tComments = lexerToken.trailing_comments;
     lexerToken.trailing_comments.clear();
@@ -194,7 +194,7 @@ gcnToken tokenize()
 void lexer_finalize()
 {
     if (use_temp_file_stream)
-        fclose(annain);
+        fclose(yyin);
 }
 
 void log_print_row(int row)
